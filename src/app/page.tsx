@@ -49,11 +49,11 @@ const Home = () => {
       </div>
       <div id="tentang-infest" className="flex flex-col w-full pt-14 px-8 md:px-12 lg:px-16 gap-12 relative bg-gradient-to-b from-primary via-transparent  to-primary">
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/pattern.webp"}
+          src={"/assets/images/Pattern Infest USK.webp"}
           fill
           sizes="100vw"
-          alt="dokumentasi-tentang-infest-usk"
-          className="absolute inset-0 -z-10 object-cover opacity-15"
+          alt="Dokumentasi Tentang Infest USK"
+          className="absolute inset-0 -z-10 object-cover opacity-30"
         />
         <h2 className={`text-[26vw] lg:text-[10rem] text-center text-primary-yellow font-imbue -mb-12`}>
           TENTANG INFEST
@@ -116,7 +116,7 @@ const Home = () => {
               <li className="pl-4 flex h-full items-end justify-end w-1/3">
                 <Link href={"/seminar"} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
                   <Image
-                    src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/arrow.webp"}
+                    src={"/assets/images/arrow.webp"}
                     alt="arrow-daftar-seminar"
                     width={40}
                     height={40}
@@ -132,7 +132,7 @@ const Home = () => {
       </div>
       <div id="kompetisi" className="flex flex-col relative w-full pt-14 lg:pt-32 px-8 md:px-16 gap-12 bg-gradient-to-b from-primary via-transparent to-primary">
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/gold_confet.webp"}
+          src={"/assets/images/goldconfet Infest USK.webp"}
           fill
           sizes="100vw"
           alt="confetti-infest-usk"

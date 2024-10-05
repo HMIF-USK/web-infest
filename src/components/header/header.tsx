@@ -54,7 +54,7 @@ export const Header = () => {
     <div ref={navbarRef} className='fixed w-screen h-16 md:h-20 top-0 z-[100] px-8 md:px-12 py-4 flex items-center justify-between text-white bg-secondary border-b border-primary-yellow'> 
       <button onClick={() => scrollIntoSection("hero")} className='lg:hover:scale-110 duration-200'>
         <Image
-          src='https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/logo-infest-usk.webp'
+          src='/assets/images/Logo Infest USK.webp'
           alt='logo-infest-usk'
           priority
           width={36}

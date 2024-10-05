@@ -48,7 +48,7 @@ export const SeminarSwiperImages = () => {
             <Image
               fill
               sizes="40vw"
-              src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/gabungan-logo.webp"}
+              src={"/assets/images/Gabungan Logo.webp"}
               alt="gabungan-logo-instansi-terkait-infest"
               className="object-cover"
             />
@@ -57,7 +57,7 @@ export const SeminarSwiperImages = () => {
             width={500}
             height={500}
             src={image.src}
-            alt="dokumentasi-seminar-infest-usk"
+            alt="Dokumentasi Seminar Infest USK"
             className="rounded-lg border border-primary w-full h-full lg:h-[30rem] object-cover"
           />
         </SwiperSlide>

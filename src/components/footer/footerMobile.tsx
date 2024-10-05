@@ -10,7 +10,7 @@ const FooterMobile = () => {
     <div className="bg-secondary border-t border-primary-yellow w-full flex flex-col px-8 py-6 gap-4 text-white items-center">
       <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/logo-infest-usk.webp"}
+          src={"/assets/images/Logo Infest USK.webp"}
           width={60}
           height={0}
           alt="logo-infest-usk"

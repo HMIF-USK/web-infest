@@ -16,7 +16,7 @@ const FooterDekstop = () => {
         </div>
         <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
           <Image
-            src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/logo-infest-usk.webp"}
+            src={"/assets/images/Logo Infest USK.webp"}
             width={70}
             height={0}
             alt="logo-infest-usk"

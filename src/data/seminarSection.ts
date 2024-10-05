@@ -1,26 +1,22 @@
 export const seminarImages = [
     {
         id: 1,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/seminar-infest-usk.webp",
+        src: "/assets/images/Seminar-3 Infest USK.webp",
     },
     {
         id: 2,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/seminar-infest.webp",
+        src: "/assets/images/Seminar Infest USK.webp",
     },
     {
         id: 3,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/seminar-infest-usk.webp",
+        src: "/assets/images/Seminar-4 Infest USK.webp",
     },
     {
         id: 4,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/closing-infest-usk.webp",
+        src: "/assets/images/Seminar-2 Infest USK.webp",
     },
     {
         id: 5,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/seminar-infest.webp",
-    },
-    {
-        id: 6,
-        src: "https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/seminar-infest-usk.webp",
+        src: "/assets/images/Seminar-5 Infest USK.webp",
     },
 ]

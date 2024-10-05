@@ -42,7 +42,7 @@ export const CompetitionSwiper: FC<CompetitionSwiperProps> = ({swiperRef, setAct
         {kompetisi.map((item) => (
           <SwiperSlide
             key={item.id}
-            className="border-2 border-primary-yellow/80 shadow-lg shadow-secondary-yellow/60"
+            className={`border-2 border-primary-yellow/80 shadow-lg shadow-secondary-yellow/60`}
           >
             <CompetitionCard
               linkPendaftaran={item.linkPendaftaran}

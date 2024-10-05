@@ -17,7 +17,7 @@ interface CompetitionCardProps {
 
 export const CompetitionCard = (props: CompetitionCardProps) => {
   return (
-    <div className="flex flex-col group h-full w-full px-6 py-8 justify-between bg-gradient-to-b from-primary-yellow/40 to-black via-black/65 relative rounded-xl text-white">
+    <div className={`flex flex-col group h-full w-full px-6 py-8 justify-between bg-gradient-to-b to-black relative rounded-xl text-white ${props.namaLomba === 'UI/UX' ? 'from-primary-yellow/60 via-black/80' : 'from-primary-yellow/40 via-black/65'}`}>
       <div className="absolute w-full h-full inset-0 -z-10">
         <Image
           src={props.fotoDepan}
