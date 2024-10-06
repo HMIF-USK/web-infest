@@ -1,8 +1,8 @@
 import Image from "next/image";
 import React from "react";
 import { ArrowCornerDown } from "../icons/arrowCornerDown";
-import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
-import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
+import { scrollIntoSection } from "@/utils/helpers/scrollIntoSection";
+import { useScreenSize } from "@/utils/hooks/screenSizeValidation";
 
 export const BannerHero3 = () => {
   const {isMobile, isDesktop, isTablet} = useScreenSize();

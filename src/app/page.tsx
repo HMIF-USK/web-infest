@@ -6,7 +6,7 @@ import { DocumentationDesktop } from "../components/aboutSection/documentationDe
 import { DocumentationMobile } from "../components/aboutSection/documentationMobile";
 import Image from "next/image";
 import { CompetitionSwiper } from '../components/competitionSection/competitionSwiper';
-import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
+import { useScreenSize } from "@/utils/hooks/screenSizeValidation";
 import Marquee from "react-fast-marquee";
 import { PartnerCard } from '../components/cards/partnerCard';
 import { infestDescription } from '../data/tentangInfestSection';
@@ -17,12 +17,14 @@ import { SeminarSwiperImages } from "@/components/seminarSection/seminarSwiperIm
 import Link from "next/link";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { SwiperRef } from "swiper/react";
+import { DaftarSeminarModal } from "@/components/seminarSection/daftarSeminarModal";
 
 const Home = () => {
   const { isMobile, isTablet, isDesktop } = useScreenSize();
   const swiperRef: LegacyRef<SwiperRef> | null = useRef(null);
   const [activeKompetisiIndex, setActiveKompetisiIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDaftarSeminar, setIsDaftarSeminar] = useState(false);
 
   const slideTo = (index: number) => {
     if (swiperRef.current && swiperRef.current.swiper) {
@@ -114,7 +116,7 @@ const Home = () => {
                 <p className="lg:text-sm text-xs text-center">Auditorium Multipurpose FMIPA USK</p>
               </li>
               <li className="pl-4 flex h-full items-end justify-end w-1/3">
-                <Link href={"/seminar"} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
+                <button onClick={() => setIsDaftarSeminar(true)} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
                   <Image
                     src={"/assets/images/arrow.webp"}
                     alt="arrow-daftar-seminar"
@@ -122,13 +124,25 @@ const Home = () => {
                     height={40}
                   />
                   <p className="text-wrap text-center text-[0.58rem] md:text-[0.66rem]">DAFTAR SEKARANG</p>
-                </Link>
+                </button>
+                {/* <Link href={"/seminar"} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
+                  <Image
+                    src={"/assets/images/arrow.webp"}
+                    alt="arrow-daftar-seminar"
+                    width={40}
+                    height={40}
+                  />
+                  <p className="text-wrap text-center text-[0.58rem] md:text-[0.66rem]">DAFTAR SEKARANG</p>
+                </Link> */}
               </li>
             </ul>
           </div>
           <SeminarSwiperImages/>
         </div>    
         <div className="bg-gradient-to-r from-transparent to-transparent via-primary-yellow from-10% to-90% w-full h-[0.1rem] mt-8 lg:mt-12"></div>{/* line separator*/}
+        {isDaftarSeminar && (
+          <DaftarSeminarModal/>
+        )}
       </div>
       <div id="kompetisi" className="flex flex-col relative w-full pt-14 lg:pt-32 px-8 md:px-16 gap-12 bg-gradient-to-b from-primary via-transparent to-primary">
         <Image

@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
+import { useScreenSize } from "@/utils/hooks/screenSizeValidation";
 
 export const SeminarSwiperImages = () => {
   const {isDesktop, isTablet} = useScreenSize();
