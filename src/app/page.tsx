@@ -116,7 +116,7 @@ const Home = () => {
               <li className="pl-4 flex h-full items-end justify-end w-1/3">
                 <Link href={"/seminar"} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
                   <Image
-                    src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/arrow.webp"}
+                    src={"/assets/images/arrow.webp"}
                     alt="arrow-daftar-seminar"
                     width={40}
                     height={40}
