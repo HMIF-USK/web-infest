@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Head from "next/head";
 import "./globals.css";
 import { montserrat } from "@/fonts/fonts";
 
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     apple: ['/apple-touch-icon.png?v=4'],
     shortcut: ['apple-touch-icon.png']
   }
-};
+} as const;
 
 export default function RootLayout({
   children,
@@ -22,6 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
+      <Head>
+        <title>{String(metadata.title) || ''}</title>
+        <meta name="description" content={metadata.description ?? ''} />
+        <meta name="google-site-verification" content={String(metadata.verification?.google) ?? ''} />        
+      </Head>
       <body className={`${montserrat.className} bg-primary`}>{children}</body>
     </html>
   );

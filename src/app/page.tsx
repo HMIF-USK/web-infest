@@ -75,21 +75,21 @@ const Home = () => {
       </div>
       <div id="seminar" className="flex flex-col w-full pt-14 lg:pt-32 px-8 md:px-16 gap-12 relative bg-gradient-to-t from-primary to-transparent">
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/asset-pattern-infest-1.webp"}
+          src={"/assets/images/Asset Pattern Infest USK-1.webp"}
           width={700}
           height={700}
           alt="asset-pattern-infest-1"
           className="absolute right-0 top-0 md:-top-52 -z-10 object-cover opacity-50"
         />    
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/asset-pattern-infest-2.webp"}
+          src={"/assets/images/Asset Pattern Infest USK-2.webp"}
           width={800}
           height={800}
           alt="asset-pattern-infest-2"
           className="absolute left-0 bottom-32 md:-top-20 -z-10 object-cover opacity-50"
         />    
         <Image
-          src={"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/asset-pattern-infest-1.webp"}
+          src={"/assets/images/Asset Pattern Infest USK-1.webp"}
           width={700}
           height={700}
           alt="asset-pattern-infest-1"
