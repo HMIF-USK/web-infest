@@ -6,7 +6,7 @@ export const kompetisi = [
         jadwalPendaftaran: "18 September 2024 - 16 Oktober 2024",
         jadwalPelaksanaan: "18 September 2024 - 21 Oktober 2024",
         totalHadiah: "Rp. 10.000.000",
-        fotoDepan: "/assets/images/UI-UX Infest USK.webp",        
+        fotoDepan: "/assets/images/UI-UX Infest USK.webp",          
         linkPendaftaran: "https://bit.ly/DaftarUIUXDesignINFEST2024",
         bukuPanduan: "https://drive.google.com/file/d/15ckwX3Qcl2mWLpSDTygsaBYqpfs3ogWM/view?usp=sharing",
     },
