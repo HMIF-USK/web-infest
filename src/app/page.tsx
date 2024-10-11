@@ -107,7 +107,7 @@ const Home = () => {
             <ul className="flex w-full divide-x-[0.6px] divide-primary-yellow/40">
               <li className="flex flex-col gap-3 items-center w-1/3 pr-2">
                 <p className="font-bold">Waktu</p>
-                <p className="lg:text-sm text-xs text-center text-wrap">09.00 WIB, 28 September 2024</p>
+                <p className="lg:text-sm text-xs text-center text-wrap">Soon</p>
               </li>
               <li className="flex flex-col gap-3 items-center w-1/3 px-2">
                 <p className="font-bold">Tempat</p>
