@@ -79,21 +79,21 @@ const Home = () => {
           width={700}
           height={700}
           alt="asset-pattern-infest-1"
-          className="absolute right-0 top-0 md:-top-52 -z-10 object-cover opacity-50"
+          className="absolute right-0 top-0 md:-top-52 -z-10 object-cover opacity-30"
         />    
         <Image
           src={"/assets/images/Asset Pattern Infest USK-2.webp"}
           width={800}
           height={800}
           alt="asset-pattern-infest-2"
-          className="absolute left-0 bottom-32 md:-top-20 -z-10 object-cover opacity-50"
+          className="absolute left-0 bottom-32 md:-top-20 -z-10 object-cover opacity-30"
         />    
         <Image
           src={"/assets/images/Asset Pattern Infest USK-1.webp"}
           width={700}
           height={700}
           alt="asset-pattern-infest-1"
-          className="absolute rotate-180 left-0 top-48 -z-10 object-cover opacity-70"
+          className="absolute rotate-180 left-0 top-48 -z-10 object-cover opacity-50"
         />    
         <div className="flex flex-col lg:flex-row lg:justify-between gap-14 w-full">        
           <div className="flex flex-col w-full lg:w-1/2 text-white gap-10">        
