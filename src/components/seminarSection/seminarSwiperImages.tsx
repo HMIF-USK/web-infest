@@ -53,6 +53,7 @@ export const SeminarSwiperImages = () => {
               className="object-cover"
             />
           </div>
+          <p className="absolute top-4 left-5 font-cattedrale tracking-[0.04rem] text-primary-yellow text-sm">SEMINAR INFEST 2023</p>
           <Image
             width={500}
             height={500}

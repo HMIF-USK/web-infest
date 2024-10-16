@@ -114,7 +114,7 @@ const Home = () => {
                 <p className="lg:text-sm text-xs text-center">Auditorium Multipurpose FMIPA USK</p>
               </li>
               <li className="pl-4 flex h-full items-end justify-end w-1/3">
-                <Link href={"https://bit.ly/Semnas-InfestX"} target="_blank" className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
+                <Link href={"https://bit.ly/Semnas-InfestX"} target="_blank" className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3  border-1 border-primary-yellow hover:scale-105 duration-200 hover:bg-black">
                   <Image
                     src={"/assets/images/arrow.webp"}
                     alt="arrow-daftar-seminar"
@@ -128,6 +128,13 @@ const Home = () => {
           </div>
           <SeminarSwiperImages/>
         </div>    
+        <Image
+          src={"/assets/images/Seminar Infest USK 2024.webp"}
+          width={800}
+          height={800}
+          alt="Seminar Infest USK 2024"
+          className="w-full h-fullobject-cover rounded-xl shadow-balance-yellow-primary border-[1.6px] border-primary-yellow"
+        />
         <div className="bg-gradient-to-r from-transparent to-transparent via-primary-yellow from-10% to-90% w-full h-[0.1rem] mt-8 lg:mt-12"></div>{/* line separator*/}
       </div>
       <div id="kompetisi" className="flex flex-col relative w-full pt-14 lg:pt-32 px-8 md:px-16 gap-12 bg-gradient-to-b from-primary via-transparent to-primary">
