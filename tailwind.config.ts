@@ -36,7 +36,7 @@ const config: Config = {
         "imbue": ["Imbue", "serif"]
       },
       colors: {   
-        // "primary": "#0A1214",      
+        // "primary": "#0A1214",    
         // "secondary": "#070D0F",     
         "primary": "#0C1914",      
         "secondary": "#0A1214",      
