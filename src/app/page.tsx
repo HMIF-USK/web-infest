@@ -107,14 +107,14 @@ const Home = () => {
             <ul className="flex w-full divide-x-[0.6px] divide-primary-yellow/40">
               <li className="flex flex-col gap-3 items-center w-1/3 pr-2">
                 <p className="font-bold">Waktu</p>
-                <p className="lg:text-sm text-xs text-center text-wrap">Soon</p>
+                <p className="lg:text-sm text-xs text-center text-wrap w-4/5">Sabtu, 26 Oktober 2024, 09.00 - 12.00 WIB</p>
               </li>
               <li className="flex flex-col gap-3 items-center w-1/3 px-2">
                 <p className="font-bold">Tempat</p>
                 <p className="lg:text-sm text-xs text-center">Auditorium Multipurpose FMIPA USK</p>
               </li>
               <li className="pl-4 flex h-full items-end justify-end w-1/3">
-                <Link href={"/seminar"} className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
+                <Link href={"https://bit.ly/Semnas-InfestX"} target="_blank" className="box text-xs font-bold flex flex-col w-full h-full items-center justify-center gap-2 p-3 shadow-balance-yellow-primary hover:scale-105 duration-200 hover:bg-black">
                   <Image
                     src={"/assets/images/arrow.webp"}
                     alt="arrow-daftar-seminar"
