@@ -55,7 +55,7 @@ export const Header = () => {
       <button onClick={() => scrollIntoSection("hero")} className='lg:hover:scale-110 duration-200'>
         <Image
           src='/assets/images/Logo Infest USK.webp'
-          alt='logo-infest-usk'
+          alt='Infest USK'
           priority
           width={36}
           height={36}

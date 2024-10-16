@@ -13,7 +13,7 @@ const FooterMobile = () => {
           src={"/assets/images/Logo Infest USK.webp"}
           width={60}
           height={0}
-          alt="logo-infest-usk"
+          alt="Infest USK"
         />
       </button>
       <div className="flex gap-2 mt-2">
