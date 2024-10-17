@@ -19,7 +19,7 @@ const FooterDekstop = () => {
             src={"/assets/images/Logo Infest USK.webp"}
             width={70}
             height={0}
-            alt="Infest USK"
+            alt="Informatics Festival (Infest) HMIF USK"
           />
         </button>
         <div className="flex flex-col gap-2 justify-end text-sm items-end w-1/3">
