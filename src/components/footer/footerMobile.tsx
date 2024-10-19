@@ -20,8 +20,8 @@ const FooterMobile = () => {
         {socialAccounts.map((account) => (
           <Link          
             key={account.id}
-            href={account.url}
             target="_blank"
+            href={account.url}
             className="hover:scale-110 duration-200"
           >
             {account.iconComponent}
