@@ -201,11 +201,22 @@ const Home = () => {
             <p className="font-semibold text-primary-yellow animate-blink">MEMUAT...</p>
           </div>
         ) : (
-          <Marquee direction="left" autoFill={true}>
-            {partners.map((partner) => (
-              <PartnerCard key={partner.nama} logoSrc={partner.src} width={partner.width} height={partner.height} logoClassName={partner.className}/>
-            ))}
-          </Marquee>
+          <>
+            <Marquee direction="left" autoFill={true}>
+              {partners
+                .sort((a, b) => a.id - b.id)
+                .map((partner) => (
+                <PartnerCard key={partner.nama} logoSrc={partner.src} width={partner.width} height={partner.height} logoClassName={partner.className}/>
+              ))}
+            </Marquee>
+            <Marquee direction="right" autoFill={true} className="-mt-7">
+                {partners
+                .sort((a, b) => b.id - a.id)
+                .map((partner) => (
+                  <PartnerCard key={partner.nama} logoSrc={partner.src} width={partner.width} height={partner.height} logoClassName={partner.className}/>
+                ))}
+            </Marquee>
+          </>
         )}
       </div>
       <div id="kontak" className="footer">
