@@ -19,7 +19,7 @@ export const kompetisi = [
         totalHadiah: "Rp. 1.000.000",
         fotoDepan: "/assets/images/Computer Olympiad Infest USK.webp",        
         linkPendaftaran: "https://bit.ly/InfestCoins2024",
-        bukuPanduan: "https://drive.google.com/file/d/1ReZ1RIq3x5rsnU3yAgZkXWXc3P_0Gq2i/view"
+        bukuPanduan: "https://drive.google.com/file/d/1CpJvoqsv0wUZpYvqvnGnugQ_mY2-5nWM/view?usp=sharing"        
     },
     {
         id: 3,
