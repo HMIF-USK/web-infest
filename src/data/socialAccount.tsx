@@ -1,6 +1,6 @@
-import { Instagram } from "@/components/icons/instagram";
-import { Tiktok } from "@/components/icons/tiktok";
-import { WhatsApp } from "@/components/icons/whatsApp";
+import { Instagram } from "@/app/icons/instagram";
+import { Tiktok } from "@/app/icons/tiktok";
+import { WhatsApp } from "@/app/icons/whatsApp";
 
 export const socialAccounts = [
   {

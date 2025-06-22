@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { ArrowCornerDown } from "../icons/arrowCornerDown";
+import { ArrowCornerDown } from "../../app/icons/arrowCornerDown";
 import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
 import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
 

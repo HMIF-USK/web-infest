@@ -1,6 +1,6 @@
 import { montserrat } from "@/fonts/fonts";
 import React from "react";
-import { Arrow } from "../icons/arrow";
+import { Arrow } from "../../app/icons/arrow";
 import Link from "next/link";
 import Image from "next/image";
 
