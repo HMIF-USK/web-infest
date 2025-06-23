@@ -343,8 +343,8 @@ const Home = () => {
               <Image
                 src="/assets/images/logo-2025.png"
                 alt="Loading"
-                width={100}
-                height={100}
+                width={150}
+                height={150}
                 className="m-auto mb-2"
               />
               <p className="font-bold text-brand_01">Loading...</p>
