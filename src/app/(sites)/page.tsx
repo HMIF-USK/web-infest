@@ -123,13 +123,17 @@ import React, {
 } from "react";
 
 // Floating Animation Component
-const FloatingElement = ({ children, delay = 0, amplitude = 20 }) => {
+const FloatingElement = ({ children, delay = 0, amplitude = 20 }: { 
+  children: React.ReactNode;
+  delay?: number;
+  amplitude?: number;
+}) => {
   return (
     <div
       className="animate-float"
       style={{
         animationDelay: `${delay}s`,
-        "--float-amplitude": `${amplitude}px`,
+        ["--float-amplitude" as string]: `${amplitude}px`,
       }}
     >
       {children}
@@ -138,7 +142,14 @@ const FloatingElement = ({ children, delay = 0, amplitude = 20 }) => {
 };
 
 // Competition Card Component
-const CompetitionCard = ({ title, icon, delay = 0, isRevealed = false }) => {
+interface CompetitionCardProps {
+  title: string;
+  icon: string;
+  delay?: number;
+  isRevealed?: boolean;
+}
+
+const CompetitionCard = ({ title, icon, delay = 0, isRevealed = false }: CompetitionCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
