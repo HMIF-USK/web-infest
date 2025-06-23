@@ -241,44 +241,44 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isMarqueeLoading, setIsMarqueeLoading] = useState(true);
   const images = [
-    "/assets/images/infest-1.jpg",
-    "/assets/images/infest-2.JPG",
-    "/assets/images/infest-3.JPG",
-    "/assets/images/infest-4.JPG",
-    "/assets/images/infest-25.JPG",
-    "/assets/images/infest-5.JPG",
-    "/assets/images/infest-6.JPG",
-    "/assets/images/infest-22.JPG",
-    "/assets/images/infest-7.JPG",
-    "/assets/images/infest-26.JPG",
-    "/assets/images/infest-8.JPG",
-    "/assets/images/infest-4.JPG",
-    "/assets/images/infest-9.JPG",
-    "/assets/images/infest-10.JPG",
-    "/assets/images/infest-24.JPG",
-    "/assets/images/infest-12.JPG",
-    "/assets/images/infest-1.jpg",
-    "/assets/images/infest-13.JPG",
-    "/assets/images/infest-11.JPG",
-    "/assets/images/infest-7.JPG",
-    "/assets/images/infest-15.JPG",
-    "/assets/images/infest-4.JPG",
-    "/assets/images/infest-16.JPG",
-    "/assets/images/infest-6.JPG",
-    "/assets/images/infest-24.JPG",
-    "/assets/images/infest-4.JPG",
-    "/assets/images/infest-19.JPG",
-    "/assets/images/infest-18.JPG",
-    "/assets/images/infest-7.JPG",
-    "/assets/images/infest-20.JPG",
-    "/assets/images/infest-21.JPG",
-    "/assets/images/infest-22.JPG",
-    "/assets/images/infest-1.jpg",
-    "/assets/images/infest-23.JPG",
-    "/assets/images/infest-24.JPG",
-    "/assets/images/infest-25.JPG",
-    "/assets/images/infest-26.JPG",
-    "/assets/images/infest-27.JPG",
+    "/assets/images/infest-1.webp",
+    "/assets/images/infest-2.webp",
+    "/assets/images/infest-3.webp",
+    "/assets/images/infest-4.webp",
+    "/assets/images/infest-25.webp",
+    "/assets/images/infest-5.webp",
+    "/assets/images/infest-6.webp",
+    "/assets/images/infest-22.webp",
+    "/assets/images/infest-7.webp",
+    "/assets/images/infest-26.webp",
+    "/assets/images/infest-8.webp",
+    "/assets/images/infest-4.webp",
+    "/assets/images/infest-9.webp",
+    "/assets/images/infest-10.webp",
+    "/assets/images/infest-24.webp",
+    "/assets/images/infest-12.webp",
+    "/assets/images/infest-1.webp",
+    "/assets/images/infest-13.webp",
+    "/assets/images/infest-11.webp",
+    "/assets/images/infest-7.webp",
+    "/assets/images/infest-15.webp",
+    "/assets/images/infest-4.webp",
+    "/assets/images/infest-16.webp",
+    "/assets/images/infest-6.webp",
+    "/assets/images/infest-24.webp",
+    "/assets/images/infest-4.webp",
+    "/assets/images/infest-19.webp",
+    "/assets/images/infest-18.webp",
+    "/assets/images/infest-7.webp",
+    "/assets/images/infest-20.webp",
+    "/assets/images/infest-21.webp",
+    "/assets/images/infest-22.webp",
+    "/assets/images/infest-1.webp",
+    "/assets/images/infest-23.webp",
+    "/assets/images/infest-24.webp",
+    "/assets/images/infest-25.webp",
+    "/assets/images/infest-26.webp",
+    "/assets/images/infest-27.webp",
   ];
 
   const slideTo = (index: number) => {
@@ -350,9 +350,9 @@ const Home = () => {
               <p className="font-bold text-brand_01">Loading...</p>
             </div>
           )}
-          <div className="w-full h-full bg-black/20 absolute inset-0 rounded-3xl flex justify-center items-center">
+          {/* <div className="w-full h-full bg-black/20 absolute inset-0 rounded-3xl flex justify-center items-center"> */}
             {/* <h3 className="text-neutral_01 text-8xl font-bold">2024</h3> */}
-          </div>
+          {/* </div> */}
         </div>
       </section>
       <section className="w-full h-screen flex">
