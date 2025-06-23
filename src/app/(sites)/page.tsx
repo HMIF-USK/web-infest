@@ -335,8 +335,21 @@ const Home = () => {
           </h2>
           <p className="text-neutral_01">Informatics Festival 2024</p>
         </div>
-        <div className="m-auto w-full h-[80vh] rounded-3xl bg-white/10 backdrop-blur-md p-2 ring-1 ring-neutral-700/10 dark:bg-neutral_01 relative shadow-[0_0_40px_rgba(242,233,197,0.8)] floating-element">
-          {!isMarqueeLoading ? <ThreeDMarquee images={images}/> : <p className="text-black">Loading</p>}
+        <div className="m-auto w-full h-[80vh] rounded-3xl bg-white/10 backdrop-blur-md p-2 flex ring-1 ring-neutral-700/10 dark:bg-neutral_01 relative shadow-[0_0_40px_rgba(242,233,197,0.8)] floating-element">
+          {!isMarqueeLoading ? (
+            <ThreeDMarquee images={images} />
+          ) : (
+            <div className="m-auto flex flex-col animate-blink">
+              <Image
+                src="/assets/images/logo-2025.png"
+                alt="Loading"
+                width={100}
+                height={100}
+                className="m-auto mb-2"
+              />
+              <p className="font-bold text-brand_01">Loading...</p>
+            </div>
+          )}
           <div className="w-full h-full bg-black/20 absolute inset-0 rounded-3xl flex justify-center items-center">
             {/* <h3 className="text-neutral_01 text-8xl font-bold">2024</h3> */}
           </div>
