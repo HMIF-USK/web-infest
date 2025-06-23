@@ -2,9 +2,12 @@
 
 import { motion } from "motion/react";
 import { cn } from "@/libs/helpers/cn";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useCallback, useState, useRef, useEffect } from "react";
 
-// Memoize sub-komponen GridLine
+// Global cache untuk tracking gambar yang sudah dimuat
+const imageLoadCache = new Set<string>();
+
+// Simplified GridLine components
 const GridLineHorizontal = memo(({
   className,
   offset,
@@ -14,30 +17,16 @@ const GridLineHorizontal = memo(({
 }) => {
   return (
     <div
-      style={
-        {
-          "--background": "#ffffff",
-          "--color": "#4C0D27",
-          "opacity": "0.4",
-          "--height": "1px",
-          "--width": "5px",
-          "--fade-stop": "90%",
-          "--offset": offset || "200px",
-          "--color-dark": "#4C0D27",
-          maskComposite: "exclude",
-        } as React.CSSProperties
-      }
+      style={{
+        "--offset": offset || "200px",
+      } as React.CSSProperties}
       className={cn(
-        "absolute left-[calc(var(--offset)/2*-1)] h-[var(--height)] w-[calc(100%+var(--offset))]",
-        "bg-[linear-gradient(to_right,var(--color),var(--color)_50%,transparent_0,transparent)]",
-        "[background-size:var(--width)_var(--height)]",
-        "[mask:linear-gradient(to_left,var(--background)_var(--fade-stop),transparent),_linear-gradient(to_right,var(--background)_var(--fade-stop),transparent),_linear-gradient(black,black)]",
-        "[mask-composite:exclude]",
+        "absolute left-[calc(var(--offset)/2*-1)] h-px w-[calc(100%+var(--offset))]",
+        "bg-gradient-to-r from-[#4C0D27]/40 via-[#4C0D27]/40 to-transparent",
         "z-30",
-        "dark:bg-[linear-gradient(to_right,var(--color-dark),var(--color-dark)_50%,transparent_0,transparent)]",
         className,
       )}
-    ></div>
+    />
   );
 });
 
@@ -50,34 +39,133 @@ const GridLineVertical = memo(({
 }) => {
   return (
     <div
-      style={
-        {
-          "--background": "#ffffff",
-          "--color": "#4C0D27",
-          "opacity": "0.4",
-          "--height": "5px",
-          "--width": "1px",
-          "--fade-stop": "90%",
-          "--offset": offset || "150px",
-          "--color-dark": "#4C0D27",
-          maskComposite: "exclude",
-        } as React.CSSProperties
-      }
+      style={{
+        "--offset": offset || "150px",
+      } as React.CSSProperties}
       className={cn(
-        "absolute top-[calc(var(--offset)/2*-1)] h-[calc(100%+var(--offset))] w-[var(--width)]",
-        "bg-[linear-gradient(to_bottom,var(--color),var(--color)_50%,transparent_0,transparent)]",
-        "[background-size:var(--width)_var(--height)]",
-        "[mask:linear-gradient(to_top,var(--background)_var(--fade-stop),transparent),_linear-gradient(to_bottom,var(--background)_var(--fade-stop),transparent),_linear-gradient(black,black)]",
-        "[mask-composite:exclude]",
+        "absolute top-[calc(var(--offset)/2*-1)] w-px h-[calc(100%+var(--offset))]",
+        "bg-gradient-to-b from-[#4C0D27]/40 via-[#4C0D27]/40 to-transparent",
         "z-30",
-        "dark:bg-[linear-gradient(to_bottom,var(--color-dark),var(--color-dark)_50%,transparent_0,transparent)]",
         className,
       )}
-    ></div>
+    />
   );
 });
 
-// Memoize komponen utama
+// Function untuk check apakah gambar sudah ada di cache browser
+const isImageCached = (src: string): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    setTimeout(() => {
+      img.src = src;
+      if (img.complete && img.naturalWidth > 0) {
+        resolve(true);
+      }
+    }, 0);
+  });
+};
+
+// Optimized Image component dengan persistent cache
+const OptimizedImage = memo(({
+  src,
+  alt,
+  imageIndex,
+}: {
+  src: string;
+  alt: string;
+  imageIndex: number;
+}) => {
+  // Check apakah gambar sudah pernah dimuat sebelumnya
+  const [isLoaded, setIsLoaded] = useState(() => imageLoadCache.has(src));
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Check cache browser saat component mount
+  useEffect(() => {
+    if (!isLoaded && !imageLoadCache.has(src)) {
+      isImageCached(src).then((cached) => {
+        if (cached) {
+          imageLoadCache.add(src);
+          setIsLoaded(true);
+        }
+      });
+    }
+  }, [src, isLoaded]);
+
+  const handleLoad = useCallback(() => {
+    imageLoadCache.add(src);
+    setIsLoaded(true);
+  }, [src]);
+
+  // Check jika img element sudah complete
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0 && !isLoaded) {
+      handleLoad();
+    }
+  }, [handleLoad, isLoaded]);
+
+  return (
+    <div className="relative">
+      <GridLineHorizontal className="-top-4" offset="20px" />
+      
+      {/* Loading skeleton - hanya show jika benar-benar belum loaded */}
+      {!isLoaded && (
+        <div className="aspect-[970/700] rounded-lg bg-gray-200/50 animate-pulse" />
+      )}
+      
+      <motion.img
+        ref={imgRef}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isLoaded ? 1 : 0 }}
+        whileHover={{
+          y: -10,
+        }}
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut",
+        }}
+        src={src}
+        alt={alt}
+        className={cn(
+          "aspect-[970/700] rounded-lg object-cover ring ring-gray-950/5",
+          "grayscale hover:grayscale-0 transition-all duration-300",
+          "hover:shadow-2xl will-change-transform",
+          isLoaded ? "block" : "hidden"
+        )}
+        width={485}
+        height={350}
+        loading={imageLoadCache.has(src) ? "eager" : "lazy"}
+        decoding="async"
+        onLoad={handleLoad}
+      />
+    </div>
+  );
+});
+
+// Preload images untuk better performance
+const useImagePreloader = (images: string[]) => {
+  useEffect(() => {
+    const preloadImages = images.slice(0, 8);
+    
+    preloadImages.forEach((src) => {
+      if (!imageLoadCache.has(src)) {
+        const img = new Image();
+        img.onload = () => imageLoadCache.add(src);
+        img.src = src;
+      }
+    });
+  }, [images]);
+};
+
+// Static transform style - tidak perlu useMemo
+const transformStyle = {
+  transform: "rotateX(55deg) rotateY(0deg) rotateZ(-45deg)",
+  backfaceVisibility: "hidden" as const,
+};
+
+// Main component
 export const ThreeDMarquee = memo(({
   images,
   className,
@@ -85,19 +173,17 @@ export const ThreeDMarquee = memo(({
   images: string[];
   className?: string;
 }) => {
-  // Memoize kalkulasi chunks yang mahal
+  // Preload beberapa gambar untuk performance yang lebih baik
+  useImagePreloader(images);
+
+  // useMemo PERLU karena expensive array operation dan hasil digunakan di map
   const chunks = useMemo(() => {
     const chunkSize = Math.ceil(images.length / 4);
     return Array.from({ length: 4 }, (_, colIndex) => {
       const start = colIndex * chunkSize;
       return images.slice(start, start + chunkSize);
     });
-  }, [images]); // Hanya re-compute jika images berubah
-
-  // Memoize style object
-  const transformStyle = useMemo(() => ({
-    transform: "rotateX(55deg) rotateY(0deg) rotateZ(-45deg)",
-  }), []); // Static, tidak perlu dependency
+  }, [images]);
 
   return (
     <div
@@ -110,33 +196,21 @@ export const ThreeDMarquee = memo(({
         <div className="size-[1720px] shrink-0 scale-50 sm:scale-75 lg:scale-100">
           <div
             style={transformStyle}
-            className="relative top-96 right-[50%] grid size-full origin-top-left grid-cols-4 gap-8 transform-3d"
+            className="relative top-96 right-[50%] grid size-full origin-top-left grid-cols-4 gap-8 transform-gpu"
           >
             {chunks.map((subarray, colIndex) => (
               <div
-                key={colIndex + "marquee"}
+                key={`col-${colIndex}`}
                 className="flex flex-col items-start gap-8"
               >
                 <GridLineVertical className="-left-4" offset="80px" />
                 {subarray.map((image, imageIndex) => (
-                  <div className="relative" key={imageIndex + image}>
-                    <GridLineHorizontal className="-top-4" offset="20px" />
-                    <motion.img
-                      whileHover={{
-                        y: -10,
-                      }}
-                      transition={{
-                        duration: 0.3,
-                        ease: "easeInOut",
-                      }}
-                      key={imageIndex + image}
-                      src={image}
-                      alt={`Image ${imageIndex + 1}`}
-                      className="aspect-[970/700] rounded-lg object-cover ring ring-gray-950/5 hover:shadow-2xl grayscale hover:grayscale-0 transition-all duration-300"
-                      width={970}
-                      height={700}
-                    />
-                  </div>
+                  <OptimizedImage
+                    key={`${colIndex}-${imageIndex}-${image}`}
+                    src={image}
+                    alt={`Image ${imageIndex + 1}`}
+                    imageIndex={imageIndex}
+                  />
                 ))}
               </div>
             ))}
@@ -147,150 +221,8 @@ export const ThreeDMarquee = memo(({
   );
 });
 
-// Tambahkan displayName untuk debugging
+// Display names
 ThreeDMarquee.displayName = "ThreeDMarquee";
 GridLineHorizontal.displayName = "GridLineHorizontal";
 GridLineVertical.displayName = "GridLineVertical";
-
-// "use client";
-
-// import { motion } from "motion/react";
-// import { cn } from "@/libs/helpers/cn";
-// export const ThreeDMarquee = ({
-//   images,
-//   className,
-// }: {
-//   images: string[];
-//   className?: string;
-// }) => {
-//   // Split the images array into 4 equal parts
-//   const chunkSize = Math.ceil(images.length / 4);
-//   const chunks = Array.from({ length: 4 }, (_, colIndex) => {
-//     const start = colIndex * chunkSize;
-//     return images.slice(start, start + chunkSize);
-//   });
-//   return (
-//     <div
-//       className={cn(
-//         "mx-auto block h-full overflow-hidden rounded-2xl max-sm:h-100",
-//         className,
-//       )}
-//     >
-//       <div className="flex size-full items-center justify-center">
-//         <div className="size-[1720px] shrink-0 scale-50 sm:scale-75 lg:scale-100">
-//           <div
-//             style={{
-//               transform: "rotateX(55deg) rotateY(0deg) rotateZ(-45deg)",
-//             }}
-//             className="relative top-96 right-[50%] grid size-full origin-top-left grid-cols-4 gap-8 transform-3d"
-//           >
-//             {chunks.map((subarray, colIndex) => (
-//               <motion.div
-//                 animate={{ y: colIndex % 2 === 0 ? 100 : -100 }}
-//                 transition={{
-//                   duration: colIndex % 2 === 0 ? 10 : 15,
-//                   repeat: Infinity,
-//                   repeatType: "reverse",
-//                 }}
-//                 key={colIndex + "marquee"}
-//                 className="flex flex-col items-start gap-8"
-//               >
-//                 <GridLineVertical className="-left-4" offset="80px" />
-//                 {subarray.map((image, imageIndex) => (
-//                   <div className="relative" key={imageIndex + image}>
-//                     <GridLineHorizontal className="-top-4" offset="20px" />
-//                     <motion.img
-//                       whileHover={{
-//                         y: -10,
-//                       }}
-//                       transition={{
-//                         duration: 0.3,
-//                         ease: "easeInOut",
-//                       }}
-//                       key={imageIndex + image}
-//                       src={image}
-//                       alt={`Image ${imageIndex + 1}`}
-//                       className="aspect-[970/700] rounded-lg object-cover ring ring-gray-950/5 hover:shadow-2xl"
-//                       width={970}
-//                       height={700}
-//                     />
-//                   </div>
-//                 ))}
-//               </motion.div>
-//             ))}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// const GridLineHorizontal = ({
-//   className,
-//   offset,
-// }: {
-//   className?: string;
-//   offset?: string;
-// }) => {
-//   return (
-//     <div
-//       style={
-//         {
-//           "--background": "#ffffff",
-//           "--color": "#4C0D27",
-//           "--height": "1px",
-//           "--width": "5px",
-//           "--fade-stop": "90%",
-//           "--offset": offset || "200px", //-100px if you want to keep the line inside
-//           "--color-dark": "#4C0D27",
-//           maskComposite: "exclude",
-//         } as React.CSSProperties
-//       }
-//       className={cn(
-//         "absolute left-[calc(var(--offset)/2*-1)] h-[var(--height)] w-[calc(100%+var(--offset))]",
-//         "bg-[linear-gradient(to_right,var(--color),var(--color)_50%,transparent_0,transparent)]",
-//         "[background-size:var(--width)_var(--height)]",
-//         "[mask:linear-gradient(to_left,var(--background)_var(--fade-stop),transparent),_linear-gradient(to_right,var(--background)_var(--fade-stop),transparent),_linear-gradient(black,black)]",
-//         "[mask-composite:exclude]",
-//         "z-30",
-//         "dark:bg-[linear-gradient(to_right,var(--color-dark),var(--color-dark)_50%,transparent_0,transparent)]",
-//         className,
-//       )}
-//     ></div>
-//   );
-// };
-
-// const GridLineVertical = ({
-//   className,
-//   offset,
-// }: {
-//   className?: string;
-//   offset?: string;
-// }) => {
-//   return (
-//     <div
-//       style={
-//         {
-//           "--background": "#ffffff",
-//           "--color": "#4C0D27",
-//           "--height": "5px",
-//           "--width": "1px",
-//           "--fade-stop": "90%",
-//           "--offset": offset || "150px", //-100px if you want to keep the line inside
-//           "--color-dark": "#4C0D27",
-//           maskComposite: "exclude",
-//         } as React.CSSProperties
-//       }
-//       className={cn(
-//         "absolute top-[calc(var(--offset)/2*-1)] h-[calc(100%+var(--offset))] w-[var(--width)]",
-//         "bg-[linear-gradient(to_bottom,var(--color),var(--color)_50%,transparent_0,transparent)]",
-//         "[background-size:var(--width)_var(--height)]",
-//         "[mask:linear-gradient(to_top,var(--background)_var(--fade-stop),transparent),_linear-gradient(to_bottom,var(--background)_var(--fade-stop),transparent),_linear-gradient(black,black)]",
-//         "[mask-composite:exclude]",
-//         "z-30",
-//         "dark:bg-[linear-gradient(to_bottom,var(--color-dark),var(--color-dark)_50%,transparent_0,transparent)]",
-//         className,
-//       )}
-//     ></div>
-//   );
-// };
+OptimizedImage.displayName = "OptimizedImage";
