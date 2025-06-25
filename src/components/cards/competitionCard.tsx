@@ -1,4 +1,4 @@
-import { montserrat } from "@/fonts/fonts";
+import { montserrat } from "@/app/fonts/fonts";
 import React from "react";
 import { Arrow } from "../../app/icons/arrow";
 import Link from "next/link";
