@@ -40,7 +40,7 @@ const config: Config = {
         "secondary": "#0A1214",      
         "primary-yellow": "#FDD026",
         "secondary-yellow": "#B89926",       
-        "brand_01": "#4C0D27",      
+        "brand_01": "#4C0D28",      
         "brand_02": "#0A1214",      
         "neutral_01": "#F2E9C5",
         "neutral_02": "#B89926",      
@@ -49,4 +49,5 @@ const config: Config = {
   },
   plugins: [],
 };
+
 export default config;

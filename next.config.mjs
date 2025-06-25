@@ -8,6 +8,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "jbymoblt3fzt0jez.public.blob.vercel-storage.com",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.codepen.io",
+      }
     ],
   },
 };
