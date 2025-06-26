@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: { optimizeCss: true },
+  experimental: {
+    optimizeCss: true, 
+    optimizePackageImports: ['motion'],
+  },
   images: {
     remotePatterns: [
       {
