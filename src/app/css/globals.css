@@ -74,7 +74,7 @@
   }
 }
 
-@keyframes textGlow {
+/* @keyframes textGlow {
   0% {
     text-shadow: 0 0 20px rgba(242, 233, 197, 0.3);
   }
@@ -82,7 +82,7 @@
     text-shadow: 0 0 30px rgba(242, 233, 197, 0.6),
       0 0 40px rgba(184, 153, 38, 0.3);
   }
-}
+} */
 
 @media only screen and (max-width: 1024px) {
   :root {
@@ -237,7 +237,7 @@
   flex: 1 1 auto;
   box-shadow: 0 6px 6px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 0, 0, 0.1);
   color: var(--lg-text);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2);
+  /* transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 2.2); */
 }
 
 .glass-container--rounded {
@@ -301,14 +301,6 @@
   img {
     width: 78px;
   }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
 .player {
@@ -329,14 +321,6 @@
   border-radius: 0.5rem;
   margin-right: 1rem;
   transition: transform 0.25s ease-out;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
 .player__legend {
@@ -378,14 +362,6 @@
   margin-bottom: 0.25rem;
   filter: drop-shadow(0 0 3px rgba(255 255 255 / 0.25));
   transition: transform 0.25s ease-out;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
 }
 
 .glass-item--active {
@@ -406,4 +382,8 @@
 
 .perspective-right {
   transform: rotateY(-34deg);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(242, 233, 197, 0.6);
 }
