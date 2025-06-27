@@ -104,7 +104,7 @@ const OptimizedImage = memo(({
       >
         {/* Placeholder while loading */}
         {!isLoaded && (
-          <div className="aspect-[970/700] bg-gray-200 animate-pulse rounded-lg flex items-center justify-center">
+          <div className="aspect-[970/700] bg-brand_02 animate-pulse rounded-lg flex items-center justify-center">
             <div className="text-gray-400">Loading...</div>
           </div>
         )}

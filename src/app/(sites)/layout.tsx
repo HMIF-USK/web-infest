@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Head from "next/head";
-import 'aos/dist/aos.css';
+import "aos/dist/aos.css";
 import "../css/globals.css";
 import { montserrat, plus_jakarta_sans } from "@/app/fonts/fonts";
 import { Header } from "@/components/header";
+import FooterDekstop from "@/components/footer/footerDekstop";
+import FooterMobile from "@/components/footer/footerMobile";
 
 export const metadata: Metadata = {
   title: "Informatics Festival",
@@ -35,10 +37,16 @@ export default function RootLayout({
         />
       </Head>
       <body
-        className={`${montserrat.className} w-full min-h-screen bg-gradient-to-b from-brand_01 to-brand_02`}
+        className={`${montserrat.className} w-full min-h-screen bg-gradient-to-b from-brand_01 to-brand_02 overflow-x-hidden`}
       >
         <Header />
         {children}
+        <div className="flex md:hidden w-full">
+          <FooterMobile />
+        </div>
+        <div className="hidden md:flex w-full">
+          <FooterDekstop />
+        </div>
       </body>
     </html>
   );
