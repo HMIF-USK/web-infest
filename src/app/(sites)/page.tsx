@@ -36,7 +36,7 @@ const GlowingOrb = ({
 // Main App Component
 const InfestWebsite = () => {
   const [isMarqueeLoading, setIsMarqueeLoading] = useState(true);
-  const {isMobile, isTablet, isDesktop} = useScreenSize()
+  const { isMobile, isTablet, isDesktop } = useScreenSize();
 
   // Sample images for the 3D marquee
   const images = [
@@ -97,7 +97,10 @@ const InfestWebsite = () => {
   return (
     <div className="w-full h-full text-neutral_01">
       {/* Hero Section */}
-      <section id="hero" className="w-full min-h-[80vh] md:h-screen relative overflow-hidden flex flex-col justify-end md:justify-center">
+      <section
+        id="hero"
+        className="w-full min-h-[80vh] md:h-screen relative overflow-hidden flex flex-col justify-end md:justify-center"
+      >
         <Image
           src="/assets/images/comingsoon.webp"
           alt="Informatics Festival (Infest) HMIF USK"
@@ -109,7 +112,9 @@ const InfestWebsite = () => {
           <p className="text-xs md:text-sm bg-gradient-to-r from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
             Get ready for the biggest tech festival
           </p>
-          <div className={`px-3 py-2 text-xs md:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}>
+          <div
+            className={`px-3 py-2 text-xs md:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}
+          >
             XI
           </div>
           <p className="text-xs md:text-sm bg-gradient-to-l from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
@@ -124,7 +129,7 @@ const InfestWebsite = () => {
       {/* About Section */}
       <section
         id="about"
-        className="w-full min-h-[80vh] flex flex-col p-6 md:p-16 relative gap-10 md:gap-20"
+        className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-20 py-10 md:py-20 px-4 md:px-20"
       >
         <div className="absolute inset-0 overflow-hidden -z-10">
           <GlowingOrb size={200} color="neutral_01" delay={0} />
@@ -141,7 +146,11 @@ const InfestWebsite = () => {
             >
               Empowering the Digital Generation
             </h2>
-            <p className="text-base md:text-lg" data-aos="fade-right" data-aos-delay="100">
+            <p
+              className="text-base md:text-lg"
+              data-aos="fade-right"
+              data-aos-delay="100"
+            >
               INFEST (Informatics Festival) XI 2025 is the biggest tech event in
               Aceh, bringing together students, professionals, and digital
               creators in one vibrant arena. Carrying the theme{" "}
@@ -153,20 +162,68 @@ const InfestWebsite = () => {
               future through innovation, collaboration, and real-world impact.
             </p>
           </div>
-          <div className="w-full md:w-1/2 flex justify-center md:justify-end relative mt-8 md:mt-0">
-            <Image
-              src="/assets/images/Infest 2025 1st Logo Outline.png"
-              alt="Informatics Festival (Infest) HMIF USK Logo"
-              width={350}
-              height={350}
-              className="object-contain w-2/3 md:w-[80%] floating-element"
-              data-aos="fade-left"
-              data-aos-delay="100"
-            />
+          <div
+            className="w-full md:w-1/2 flex justify-center md:justify-end relative mt-8 md:mt-0"
+            data-aos="fade-left"
+            data-aos-delay="100"
+          >
+            {/* Multi-layered Glow Background */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              {/* Outer Glow Ring */}
+              <div className="absolute w-[120%] h-[120%] rounded-full bg-gradient-radial from-neutral_01/20 via-neutral_01/10 to-transparent blur-3xl animate-pulse-slow"></div>
+
+              {/* Middle Glow Ring */}
+              <div className="absolute w-[100%] h-[100%] rounded-full bg-gradient-radial from-brand_01/30 via-brand_01/15 to-transparent blur-2xl animate-ping-slow"></div>
+
+              {/* Inner Glow Ring */}
+              <div className="absolute w-[80%] h-[80%] rounded-full bg-gradient-radial from-neutral_02/40 via-neutral_02/20 to-transparent blur-xl animate-pulse-slower"></div>
+
+              {/* Core Glow */}
+              <div className="absolute w-[60%] h-[60%] rounded-full bg-gradient-radial from-neutral_01/50 to-transparent blur-lg animate-breathe"></div>
+            </div>
+
+            {/* Rotating Ring Effects */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-[110%] h-[110%] border border-neutral_01/20 rounded-full animate-spin-slow"></div>
+              <div className="absolute w-[90%] h-[90%] border border-brand_01/30 rounded-full animate-reverse-spin-slow"></div>
+            </div>
+
+            {/* Sparkle Effects */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-neutral_01 rounded-full animate-twinkle"></div>
+              <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-brand_01 rounded-full animate-twinkle-delayed"></div>
+              <div className="absolute bottom-1/4 left-3/4 w-1.5 h-1.5 bg-neutral_02 rounded-full animate-twinkle-slow"></div>
+              <div className="absolute top-1/2 right-1/3 w-1 h-1 bg-neutral_01 rounded-full animate-twinkle-fast"></div>
+            </div>
+
+            {/* Main Logo with Enhanced Effects */}
+            <div className="relative z-10">
+              <Image
+                src="/assets/images/Infest 2025 1st Logo Outline.png"
+                alt="Informatics Festival (Infest) HMIF USK Logo"
+                width={500}
+                height={500}
+                className="object-contain  w-full md:w-[90%] floating-element filter drop-shadow-[0_0_30px_rgba(242,233,197,0.6)] hover:drop-shadow-[0_0_50px_rgba(242,233,197,0.8)] transition-all duration-500"
+              />
+            </div>
+
+            {/* Floating Particles */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute w-1 h-1 bg-neutral_01/60 rounded-full animate-float-1"></div>
+              <div className="absolute w-0.5 h-0.5 bg-brand_01/80 rounded-full animate-float-2"></div>
+              <div className="absolute w-1.5 h-1.5 bg-neutral_02/50 rounded-full animate-float-3"></div>
+              <div className="absolute w-0.5 h-0.5 bg-neutral_01/70 rounded-full animate-float-4"></div>
+            </div>
           </div>
         </div>
-        <div className={`w-full grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 ${dm_serif_display.className}`}>
-          <div className="w-full h-full" data-aos="fade-up" data-aos-delay="300">
+        <div
+          className={`w-full grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 ${dm_serif_display.className}`}
+        >
+          <div
+            className="w-full h-full order-2 md:order-1"
+            data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
+            data-aos-delay={`${isDesktop && "300"}`}
+          >
             <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
               <p className="text-lg md:text-2xl font-medium">Contributed By</p>
               <AnimatedCountUp
@@ -179,9 +236,14 @@ const InfestWebsite = () => {
               </p>
             </Glass>
           </div>
-          <div className="w-full h-full" data-aos="fade-up" data-aos-delay="100">
+          <div
+            className="w-full h-full order-1 md:order-2"
+            data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
+          >
             <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
-              <p className="text-lg md:text-2xl font-medium">Rollback the Glory</p>
+              <p className="text-lg md:text-2xl font-medium">
+                Rollback the Glory
+              </p>
               <AnimatedCountUp
                 end={2024}
                 separator=""
@@ -192,9 +254,15 @@ const InfestWebsite = () => {
               </p>
             </Glass>
           </div>
-          <div className="w-full h-full" data-aos="fade-up" data-aos-delay="300">
+          <div
+            className="w-full h-full order-3"
+            data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
+            data-aos-delay={`${isDesktop && "300"}`}
+          >
             <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
-              <p className="text-lg md:text-2xl font-medium">In Collaboration With</p>
+              <p className="text-lg md:text-2xl font-medium">
+                In Collaboration With
+              </p>
               <AnimatedCountUp
                 duration={4}
                 end={25}
@@ -254,7 +322,7 @@ const InfestWebsite = () => {
       {/* Competitions Section */}
       <section
         id="competition"
-        className="px-4 md:px-20 w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-10 md:py-20"
+        className="w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-10 md:py-20 px-4 md:px-20"
       >
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden">
@@ -277,7 +345,11 @@ const InfestWebsite = () => {
               Three exciting competitions await. Can you guess what they are?
             </p>
           </div>
-          <div className="w-full h-[300px] md:h-[655px] relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 mt-4 md:mt-0" data-aos="fade-up" data-aos-delay="500">
+          <div
+            className="w-full h-[300px] md:h-[655px] relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 mt-4 md:mt-0"
+            data-aos="fade-up"
+            data-aos-delay="500"
+          >
             <Image
               src="/assets/images/window.png"
               alt="Informatics Festival (Infest) HMIF USK"
@@ -285,11 +357,17 @@ const InfestWebsite = () => {
               className="object-contain w-full h-full"
             />
             <div className="flex w-full gap-4 md:gap-12 justify-between items-center px-2 md:px-20 absolute top-0 left-0 h-full">
-              <div className="w-1/4 h-1/3 hidden md:block" style={{ perspective: "600px" }}>
+              <div
+                className="w-1/4 h-1/3 hidden md:block"
+                style={{ perspective: "600px" }}
+              >
                 <div className="w-full h-full bg-white/20 rounded-3xl shadow-lg perspective-left shadow-black/60 backdrop-blur-sm border border-white/80"></div>
               </div>
               <div className="w-full md:w-1/3 h-1/3 bg-white/20 rounded-3xl shadow-lg shadow-black/60 backdrop-blur-sm border border-white/80"></div>
-              <div className="w-1/4 h-1/3 hidden md:block" style={{ perspective: "600px" }}>
+              <div
+                className="w-1/4 h-1/3 hidden md:block"
+                style={{ perspective: "600px" }}
+              >
                 <div className="w-full h-full bg-white/20 rounded-3xl shadow-lg perspective-right shadow-black/60 backdrop-blur-sm border border-white/80"></div>
               </div>
             </div>
@@ -302,7 +380,7 @@ const InfestWebsite = () => {
       {/* Seminar Section */}
       <section
         id="seminar"
-        className="px-4 md:px-20 w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-10 md:py-20"
+        className="w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-10 md:py-20 px-4 md:px-20"
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-[44%] left-1/2 -translate-x-1/2 w-40 h-40 md:w-96 md:h-96 bg-neutral_01/10 rounded-full blur-3xl"></div>
@@ -325,7 +403,11 @@ const InfestWebsite = () => {
             </p>
           </div>
 
-          <div className="flex flex-col items-center gap-2 md:gap-4 w-full" data-aos="fade-up" data-aos-delay="400">
+          <div
+            className="flex flex-col items-center gap-2 md:gap-4 w-full"
+            data-aos="fade-up"
+            data-aos-delay="400"
+          >
             <span className="inline-block px-4 py-1 rounded-full bg-brand_01/80 text-neutral_01 text-xs md:text-sm font-semibold tracking-wide shadow-lg mb-2">
               Mystery Speaker
             </span>
@@ -338,42 +420,87 @@ const InfestWebsite = () => {
                 style={{ zIndex: 1 }}
               />
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-5xl md:text-[6rem] lg:text-[8rem] font-bold text-brand_01 drop-shadow-lg animate-pulse text-glow" style={{zIndex: 2}}>
+                <span
+                  className="text-5xl md:text-[6rem] lg:text-[8rem] font-bold text-brand_01 drop-shadow-lg animate-pulse text-glow"
+                  style={{ zIndex: 2 }}
+                >
                   ?
                 </span>
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-t from-brand_01/10 to-transparent"></div>
             </div>
-            <p className="text-base md:text-lg text-center max-w-xl text-neutral_01/90 mt-2" data-aos="fade-up" >
-              Who will be the keynote speaker at INFEST XI National Seminar this year? Stay tuned as we will soon reveal an inspiring figure who will share their best insights and experiences. Follow us on <b>Social Media</b> for the latest updates!
+            <p
+              className="text-base md:text-lg text-center max-w-xl text-neutral_01/90 mt-2"
+              data-aos="fade-up"
+            >
+              Who will be the keynote speaker at INFEST XI National Seminar this
+              year? Stay tuned as we will soon reveal an inspiring figure who
+              will share their best insights and experiences. Follow us on{" "}
+              <b>Social Media</b> for the latest updates!
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 justify-center items-center">
-            <div className="w-full md:h-40" data-aos={`${isMobile ? 'fade-left' : 'fade-up'}`}>
+            <div
+              className="w-full md:h-40"
+              data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
+            >
               <Glass className="flex flex-col items-center justify-center h-full">
                 <span className="text-2xl md:text-4xl">🎤</span>
-                <p className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}>Latest Topics</p>
-                <p className="text-center text-neutral_01/80 text-xs md:text-sm">Insights from industry experts and academics on the newest trends and innovations in technology.</p>
+                <p
+                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                >
+                  Latest Topics
+                </p>
+                <p className="text-center text-neutral_01/80 text-xs md:text-sm">
+                  Insights from industry experts and academics on the newest
+                  trends and innovations in technology.
+                </p>
               </Glass>
             </div>
-            <div className="w-full md:h-40" data-aos={`${isMobile ? 'fade-right' : 'fade-up'}`} data-aos-delay="100">
-              <Glass className="flex flex-col items-center justify-center h-full">  
+            <div
+              className="w-full md:h-40"
+              data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
+              data-aos-delay="100"
+            >
+              <Glass className="flex flex-col items-center justify-center h-full">
                 <span className="text-2xl md:text-4xl">🤝</span>
-                <p className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}>Networking</p>
-                <p className="text-center text-neutral_01/80 text-xs md:text-sm">Opportunities to meet, discuss, and build connections with fellow participants and speakers.</p>
+                <p
+                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                >
+                  Networking
+                </p>
+                <p className="text-center text-neutral_01/80 text-xs md:text-sm">
+                  Opportunities to meet, discuss, and build connections with
+                  fellow participants and speakers.
+                </p>
               </Glass>
             </div>
-            <div className="w-full md:h-40" data-aos={`${isMobile ? 'fade-left' : 'fade-up'}`} data-aos-delay="200">
+            <div
+              className="w-full md:h-40"
+              data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
+              data-aos-delay="200"
+            >
               <Glass className="flex flex-col items-center justify-center h-full">
                 <span className="text-2xl md:text-4xl">📜</span>
-                <p className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}>E-Certificate</p>
-                <p className="text-center text-neutral_01/80 text-xs md:text-sm">Receive an exclusive e-certificate as proof of your participation in the national seminar.</p>
+                <p
+                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                >
+                  E-Certificate
+                </p>
+                <p className="text-center text-neutral_01/80 text-xs md:text-sm">
+                  Receive an exclusive e-certificate as proof of your
+                  participation in the national seminar.
+                </p>
               </Glass>
             </div>
           </div>
 
-          <div className="mt-4 md:mt-8 flex justify-center" data-aos="fade-up" data-aos-delay="800">
+          <div
+            className="mt-4 md:mt-8 flex justify-center"
+            data-aos="fade-up"
+            data-aos-delay="800"
+          >
             <a
               href="#"
               className="px-6 md:px-8 py-2 md:py-3 rounded-full bg-gradient-to-r from-brand_01 to-neutral_02 text-neutral_01 font-bold shadow-lg hover:scale-105 transition-transform duration-200 border border-neutral_01/30 text-base md:text-lg"
@@ -384,8 +511,7 @@ const InfestWebsite = () => {
         </div>
       </section>
 
-      <div className="w-full md:w-2/3 mx-auto h-[1px] bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>      
-      
+      <div className="w-full md:w-2/3 mx-auto h-[1px] bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
     </div>
   );
 };

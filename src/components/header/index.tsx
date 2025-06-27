@@ -58,7 +58,7 @@ export const Header = () => {
               alt="Logo Infest"
               width={100}
               height={100}
-              className="object-cover w-16 h-7 md:w-28 md:h-12"
+              className="object-cover w-24 h-8 md:w-28 md:h-12"
             />
             {/* </div> */}
             {isDesktop && (
@@ -75,7 +75,7 @@ export const Header = () => {
               </div>
             )}
             <button
-              className={`font-bold text-sm py-2 md:py-0 text-brand_01 px-8 rounded-2xl bg-gradient-to-r from-neutral_02 to-neutral_01 shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] duration-200`}
+              className={`font-bold text-sm md:text-base py-2 md:py-0 text-brand_01 px-8 rounded-2xl bg-gradient-to-r from-neutral_02 to-neutral_01 shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] duration-200`}
             >
               Login
             </button>
