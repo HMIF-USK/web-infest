@@ -3,11 +3,11 @@ import React from "react";
 export const Glass = ({ children, className }: { children: React.ReactNode, className: string }) => {
   return (
     <>
-      <div className="glass-container glass-container--large border border-white/40 p-6">
+      <div className="glass-container glass-container--large border border-white/40 p-6 rounded-[2rem]">
         <div className="glass-filter" />
         <div className="glass-overlay" />
         <div className="glass-specular" />
-        <div className={`glass-content ${className}`}>
+        <div className={`glass-content ${className} justify-center items-center`}>
           {children}
         </div>
       </div>

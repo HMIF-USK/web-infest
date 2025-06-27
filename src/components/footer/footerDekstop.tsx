@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
@@ -7,31 +9,32 @@ import { socialAccounts } from "@/data/socialAccount";
 
 const FooterDekstop = () => {
   return (
-    <div className="bg-secondary border-t border-primary-yellow w-full flex justify-between px-8 md:px-12 py-6 text-white">    
-        <div className="flex flex-col justify-end text-sm w-1/3">
-          <p className="font-bold text-base uppercase">Alamat</p>
-          <p className="text-sm mt-3 text-balance">
-            Jl. Syech Abdurrauf No.3, Kopelma Darussalam, Kecamatan Syiah Kuala, Kota Banda Aceh, Aceh 23111, Indonesia
-          </p>
+    <div className="bg-transparent w-full flex justify-between px-8 md:px-12 py-8 text-neutral_01">
+      <div className="flex flex-col justify-end text-sm w-1/3">
+        <p className="font-bold text-base uppercase tracking-wide">Address</p>
+        <p className="text-sm mt-3 text-balance">
+          Jl. Syech Abdurrauf No.3, Kopelma Darussalam, Syiah Kuala District, Banda Aceh City, Aceh 23111, Indonesia
+        </p>
+      </div>
+      <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
+        <Image
+          src={"/assets/images/Infest 2025 1st Logo Outline.png"}
+          width={80}
+          height={0}
+          alt="Informatics Festival (Infest) HMIF USK"
+          className="object-contain drop-shadow-lg"
+        />
+      </button>
+      <div className="flex flex-col gap-2 justify-end text-sm items-end w-1/3">
+        <div className="flex gap-2 mb-2">
+          {socialAccounts.map((account) => (
+            <Link key={account.id} href={account.url} className={`hover:scale-110 duration-200 text-neutral_01`} target="_blank">
+              {account.iconComponent}
+            </Link>
+          ))}
         </div>
-        <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
-          <Image
-            src={"/assets/images/Logo Infest USK.webp"}
-            width={70}
-            height={0}
-            alt="Informatics Festival (Infest) HMIF USK"
-          />
-        </button>
-        <div className="flex flex-col gap-2 justify-end text-sm items-end w-1/3">
-          <div className="flex gap-2">
-            {socialAccounts.map((account) => (
-              <Link key={account.id} href={account.url} className={`hover:scale-110 duration-200`} target="_blank">
-                {account.iconComponent}
-              </Link>
-            ))}
-          </div>
-          <p className="text-sm text-end">Hak Cipta © 2024 | Himpunan Mahasiswa Informatika</p>
-        </div>
+        <p className="text-xs text-end text-neutral_01/70">Copyright © 2024 | Himpunan Mahasiswa Informatika USK</p>
+      </div>
     </div>
   );
 };

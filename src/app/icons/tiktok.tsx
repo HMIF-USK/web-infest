@@ -5,7 +5,7 @@ export const Tiktok = (props: SVGProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      fill="#FFFFFF"
+      fill="#F2E9C5"
       width={props.width || "30"}
       height={props.height || "30"}
       viewBox="0 0 32 32"
