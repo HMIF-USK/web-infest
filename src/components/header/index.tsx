@@ -38,14 +38,14 @@ export const Header = () => {
   }, []);
 
   return (
-    <header className="header fixed top-0 left-0 right-0 w-full z-[100]">
+    <header className="header fixed top-0 left-0 right-0 w-full z-[100] overflow-x-hidden">
       <div
         className={`${isMobile ? "container--mobile" : ""} ${
           dm_serif_display.className
         }`}
       >
         <div
-          className={`glass-container glass-container--large w-screen border-b border-white/40 bg-gradient-to-r from-neutral_01 md:via-20% via-transparent to-transparent ${
+          className={`glass-container glass-container--large w-screen overflow-x-hidden border-b border-white/40 bg-gradient-to-r from-neutral_01 md:via-20% via-transparent to-transparent ${
             !isDesktop && "backdrop-blur"
           } px-4 md:px-16 py-4`}
         >

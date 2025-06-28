@@ -338,10 +338,6 @@
   transform: rotateY(-34deg);
 }
 
-.text-glow {
-  text-shadow: 0 0 20px rgba(242, 233, 197, 0.6);
-}
-
 @keyframes pulse-slow {
   0%, 100% {
     opacity: 0.3;
@@ -568,4 +564,8 @@
 /* Gradient utilities */
 .bg-gradient-radial {
   background: radial-gradient(circle, var(--tw-gradient-stops));
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(242, 233, 197, 0.8);
 }
