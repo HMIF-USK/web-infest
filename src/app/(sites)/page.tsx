@@ -8,8 +8,7 @@ import { Glass } from "@/components/glass";
 import AOS from "aos";
 import { AnimatedCountUp } from "@/components/AnimatedCountUp";
 import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
-import { Sparkle, Speech, Trophy } from "lucide-react";
-import { TextGenerateEffect } from "@/components/textGenerateEffect";
+import { Speech, Trophy } from "lucide-react";
 
 const GlowingOrb = ({
   size = 100,
@@ -36,6 +35,7 @@ const GlowingOrb = ({
 const InfestWebsite = () => {
   const [isMarqueeLoading, setIsMarqueeLoading] = useState(true);
   const { isMobile, isTablet, isDesktop } = useScreenSize();
+  const [showHeroBg, setShowHeroBg] = useState(false);
 
   // Sample images for the 3D marquee
   const images = [
@@ -89,8 +89,13 @@ const InfestWebsite = () => {
   useEffect(() => {
     AOS.init({
       duration: 1000,
-      once: false,
+      once: true,
     });
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowHeroBg(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -100,23 +105,27 @@ const InfestWebsite = () => {
         id="hero"
         className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-20 py-10 md:py-20 px-4 md:px-20"
       >
+        <div className={`absolute inset-0 w-screen h-1/4 transition-opacity duration-1000 ${showHeroBg ? 'opacity-100' : 'opacity-0'}`}>
+          <Image
+            src="/assets/images/goldconfet Infest USK.webp"
+            alt="Informatics Festival (Infest) HMIF USK"
+            fill
+            priority
+            className="object-cover w-full h-full opacity-25"
+          />
+        </div>
         <div className="absolute inset-0 overflow-hidden -z-10">
           <GlowingOrb size={200} color="neutral_01" delay={0} />
           <GlowingOrb size={150} color="brand_01" delay={2} />
         </div>
         <div className="mt-10 flex flex-col gap-6 items-center">
-          {/* <h1
+          <h1
             className={`${dm_serif_display.className} text-glow text-[6.8rem] text-neutral_01 z-20 text-center  bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_01 bg-clip-text text-transparent`}
             style={{ lineHeight: "1" }}
           >
-            Informatics Festival
-            XI 2025
-          </h1> */}
-          <TextGenerateEffect
-            className={`${dm_serif_display.className} text-glow z-20 text-center`}
-            words={"Informatics Festival XI 2025"}
-          />
-          <div className="w-full flex flex-col md:flex-row justify-center items-center z-20 gap-4 md:gap-8 px-4" data-aos="fade-up" data-aos-delay="500">
+            Informatics Festival XI 2025
+          </h1>
+          <div className="w-full flex flex-col md:flex-row justify-center items-center z-20 gap-4 md:gap-8 px-4">
             <p className="text-xs md:text-sm bg-gradient-to-r from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
               Get ready for the biggest tech festival
             </p>
@@ -129,7 +138,7 @@ const InfestWebsite = () => {
               Where Innovation Meets Excellence
             </p>
           </div>
-          <div className="flex gap-4 mx-auto w-1/2 font-semibold filter drop-shadow-[0_0_40px_rgba(242,233,197,0.8)]" data-aos="fade-up" data-aos-delay="700">
+          <div className="flex gap-4 mx-auto w-1/2 font-semibold filter drop-shadow-[0_0_40px_rgba(242,233,197,0.8)]">
             <button className="flex-1 text-brand_01 rounded-xl shadow-xl px-6 py-3 bg-neutral_01 border border-white/20 flex justify-center items-center gap-4">
               <Trophy />
               Competitions
@@ -144,7 +153,6 @@ const InfestWebsite = () => {
         <div
           className="m-auto w-full h-full rounded-3xl z-30 bg-gradient-radial from-neutral_01/60 via-transparent to-transparent p-2 md:p-4 flex ring-1 ring-neutral_01/10 relative overflow-hidden shadow-[0_0_40px_rgba(242,233,197,0.8)]"
           data-aos="fade-up"
-          data-aos-delay="900"
         >
           {isMarqueeLoading ? (
             <div className="m-auto flex flex-col h-[40vh] md:h-[80vh] justify-center items-center animate-pulse">
