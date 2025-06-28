@@ -7,11 +7,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { Glass } from "@/components/glass";
 import AOS from "aos";
 import { AnimatedCountUp } from "@/components/AnimatedCountUp";
-import FooterDekstop from "@/components/footer/footerDekstop";
-import FooterMobile from "@/components/footer/footerMobile";
 import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
+import { Sparkle, Speech, Trophy } from "lucide-react";
+import { TextGenerateEffect } from "@/components/textGenerateEffect";
 
-// Glowing orb component for background effects
 const GlowingOrb = ({
   size = 100,
   color = "brand_01",
@@ -99,41 +98,81 @@ const InfestWebsite = () => {
       {/* Hero Section */}
       <section
         id="hero"
-        className="w-full min-h-[80vh] md:h-screen relative overflow-hidden flex flex-col justify-end md:justify-center"
-      >
-        <Image
-          src="/assets/images/comingsoon.webp"
-          alt="Informatics Festival (Infest) HMIF USK"
-          fill
-          priority
-          className="object-cover w-full h-full"
-        />
-        <div className="w-full flex flex-col md:flex-row justify-center items-center z-20 absolute bottom-8 md:bottom-[8%] gap-4 md:gap-8 px-4">
-          <p className="text-xs md:text-sm bg-gradient-to-r from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
-            Get ready for the biggest tech festival
-          </p>
-          <div
-            className={`px-3 py-2 text-xs md:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}
-          >
-            XI
-          </div>
-          <p className="text-xs md:text-sm bg-gradient-to-l from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
-            Where Innovation Meets Excellence
-          </p>
-        </div>
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-brand_02/20 to-transparent"></div>
-      </section>
-
-      <div className="w-full md:w-2/3 mx-auto h-[1px] bg-gradient-to-r from-transparent via-neutral_01 to-transparent"></div>
-
-      {/* About Section */}
-      <section
-        id="about"
         className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-20 py-10 md:py-20 px-4 md:px-20"
       >
         <div className="absolute inset-0 overflow-hidden -z-10">
           <GlowingOrb size={200} color="neutral_01" delay={0} />
           <GlowingOrb size={150} color="brand_01" delay={2} />
+        </div>
+        <div className="mt-10 flex flex-col gap-6 items-center">
+          {/* <h1
+            className={`${dm_serif_display.className} text-glow text-[6.8rem] text-neutral_01 z-20 text-center  bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_01 bg-clip-text text-transparent`}
+            style={{ lineHeight: "1" }}
+          >
+            Informatics Festival
+            XI 2025
+          </h1> */}
+          <TextGenerateEffect
+            className={`${dm_serif_display.className} text-glow z-20 text-center`}
+            words={"Informatics Festival XI 2025"}
+          />
+          <div className="w-full flex flex-col md:flex-row justify-center items-center z-20 gap-4 md:gap-8 px-4" data-aos="fade-up" data-aos-delay="500">
+            <p className="text-xs md:text-sm bg-gradient-to-r from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
+              Get ready for the biggest tech festival
+            </p>
+            <div
+              className={`px-3 py-2.5 text-xs md:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}
+            >
+              XI
+            </div>
+            <p className="text-xs md:text-sm bg-gradient-to-l from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
+              Where Innovation Meets Excellence
+            </p>
+          </div>
+          <div className="flex gap-4 mx-auto w-1/2 font-semibold filter drop-shadow-[0_0_40px_rgba(242,233,197,0.8)]" data-aos="fade-up" data-aos-delay="700">
+            <button className="flex-1 text-brand_01 rounded-xl shadow-xl px-6 py-3 bg-neutral_01 border border-white/20 flex justify-center items-center gap-4">
+              <Trophy />
+              Competitions
+            </button>
+            <button className="flex-1 text-neutral_01 rounded-xl shadow-xl px-6 py-3 bg-brand_01 border border-neutral_01 flex justify-center items-center gap-4">
+              <Speech />
+              <span>National Seminar</span>
+            </button>
+          </div>
+        </div>
+        {/* 3D Marquee Container */}
+        <div
+          className="m-auto w-full h-full rounded-3xl z-30 bg-gradient-radial from-neutral_01/60 via-transparent to-transparent p-2 md:p-4 flex ring-1 ring-neutral_01/10 relative overflow-hidden shadow-[0_0_40px_rgba(242,233,197,0.8)]"
+          data-aos="fade-up"
+          data-aos-delay="900"
+        >
+          {isMarqueeLoading ? (
+            <div className="m-auto flex flex-col h-[40vh] md:h-[80vh] justify-center items-center animate-pulse">
+              <div className="w-20 h-20 md:w-32 md:h-32 bg-gradient-to-br from-neutral_01/20 to-neutral_02/20 rounded-2xl flex items-center justify-center mb-4">
+                <div className="text-4xl">🎭</div>
+              </div>
+              <p className="font-bold text-neutral_01 text-center text-lg md:text-xl">
+                Loading Memories...
+              </p>
+              <div className="mt-4 flex space-x-2">
+                <div className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"></div>
+                <div
+                  className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+              </div>
+            </div>
+          ) : (
+            <ThreeDMarquee images={images} />
+          )}
+          <div className="absolute top-2 z-0 left-2 w-6 h-6 md:top-4 md:left-4 md:w-8 md:h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
+          <div className="absolute top-2 z-0 right-2 w-6 h-6 md:top-4 md:right-4 md:w-8 md:h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
+          <div className="absolute bottom-2 z-0 left-2 w-6 h-6 md:bottom-4 md:left-4 md:w-8 md:h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
+          <div className="absolute bottom-2 z-0 right-2 w-6 h-6 md:bottom-4 md:right-4 md:w-8 md:h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
         </div>
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
           <div className="flex flex-col w-full md:w-1/2 gap-6 md:gap-8 z-10">
@@ -274,40 +313,6 @@ const InfestWebsite = () => {
               </p>
             </Glass>
           </div>
-        </div>
-
-        {/* 3D Marquee Container */}
-        <div
-          className="m-auto w-full h-full rounded-3xl z-30 bg-gradient-radial from-neutral_01/60 via-transparent to-transparent p-2 md:p-4 flex ring-1 ring-neutral_01/10 relative overflow-hidden shadow-[0_0_40px_rgba(242,233,197,0.8)]"
-          data-aos="fade-up"
-        >
-          {isMarqueeLoading ? (
-            <div className="m-auto flex flex-col h-[40vh] md:h-[80vh] justify-center items-center animate-pulse">
-              <div className="w-20 h-20 md:w-32 md:h-32 bg-gradient-to-br from-neutral_01/20 to-neutral_02/20 rounded-2xl flex items-center justify-center mb-4">
-                <div className="text-4xl">🎭</div>
-              </div>
-              <p className="font-bold text-neutral_01 text-center text-lg md:text-xl">
-                Loading Memories...
-              </p>
-              <div className="mt-4 flex space-x-2">
-                <div className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-neutral_01 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-              </div>
-            </div>
-          ) : (
-            <ThreeDMarquee images={images} />
-          )}
-          <div className="absolute top-2 z-0 left-2 w-6 h-6 md:top-4 md:left-4 md:w-8 md:h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
-          <div className="absolute top-2 z-0 right-2 w-6 h-6 md:top-4 md:right-4 md:w-8 md:h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
-          <div className="absolute bottom-2 z-0 left-2 w-6 h-6 md:bottom-4 md:left-4 md:w-8 md:h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
-          <div className="absolute bottom-2 z-0 right-2 w-6 h-6 md:bottom-4 md:right-4 md:w-8 md:h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
         </div>
 
         {/* Decorative Background Elements */}

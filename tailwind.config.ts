@@ -42,6 +42,7 @@ const config: Config = {
         "secondary-yellow": "#B89926",       
         "brand_01": "#4C0D28",      
         "brand_02": "#0A1214",      
+        "brand_03": "#4B0F73",      
         "neutral_01": "#F2E9C5",
         "neutral_02": "#B89926",      
       },
