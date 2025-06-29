@@ -8,6 +8,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
 import { ArrowLeft, UserPlus, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle, UserIcon } from "lucide-react";
+import { validateEmail, validatePassword, logSecurityEvent, sanitizeInput } from "@/libs/security/utils";
+import { SECURITY_CONFIG } from "@/libs/security/constants";
+import GuestLayout from "@/app/(layouts)/guestLayout";
 
 // Input Component with glass effect
 const GlassInput = ({ 
@@ -118,63 +121,6 @@ function RegisterLoading() {
   );
 }
 
-// Session wrapper component
-function SessionWrapper({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("Error checking session:", error);
-        }
-
-        if (session) {
-          router.replace("/dashboard");
-          return;
-        }
-
-        setUser(null);
-      } catch (error) {
-        console.error("Session check failed:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-          router.replace("/dashboard");
-        } else {
-          setUser(session?.user || null);
-        }
-        setLoading(false);
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [router]);
-
-  if (loading) {
-    return <RegisterLoading />;
-  }
-
-  if (user) {
-    return null;
-  }
-
-  return <>{children}</>;
-}
-
 // Main register page component
 function RegisterPageContent() {
   const [isRegistering, setIsRegistering] = useState(false);
@@ -199,26 +145,28 @@ function RegisterPageContent() {
   const validateForm = () => {
     const newErrors = { fullName: '', email: '', password: '', confirmPassword: '', general: '' };
     
+    // Full name validation
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Nama lengkap harus diisi';
     } else if (formData.fullName.trim().length < 2) {
       newErrors.fullName = 'Nama lengkap minimal 2 karakter';
+    } else if (formData.fullName.trim().length > 100) {
+      newErrors.fullName = 'Nama lengkap maksimal 100 karakter';
     }
     
-    if (!formData.email) {
-      newErrors.email = 'Email harus diisi';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Format email tidak valid';
+    // Email validation using security utility
+    const emailValidation = validateEmail(formData.email);
+    if (!emailValidation.isValid) {
+      newErrors.email = emailValidation.error || "Email tidak valid";
     }
     
-    if (!formData.password) {
-      newErrors.password = 'Password harus diisi';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password harus mengandung huruf besar, huruf kecil, dan angka';
+    // Password validation using security utility
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      newErrors.password = passwordValidation.error || "Password tidak valid";
     }
     
+    // Confirm password validation
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Konfirmasi password harus diisi';
     } else if (formData.password !== formData.confirmPassword) {
@@ -238,12 +186,23 @@ function RegisterPageContent() {
       setIsRegistering(true);
       setErrors({ fullName: '', email: '', password: '', confirmPassword: '', general: '' });
       
+      // Log registration attempt
+      logSecurityEvent({
+        type: 'login_attempt',
+        identifier: formData.email.trim().toLowerCase(),
+        details: { method: 'register' }
+      });
+      
+      // Sanitize inputs
+      const sanitizedEmail = sanitizeInput(formData.email).toLowerCase();
+      const sanitizedFullName = sanitizeInput(formData.fullName).trim();
+      
       const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
+        email: sanitizedEmail,
         password: formData.password,
         options: {
           data: {
-            full_name: formData.fullName.trim(),
+            full_name: sanitizedFullName,
           }
         }
       });
@@ -255,6 +214,8 @@ function RegisterPageContent() {
           setErrors(prev => ({ ...prev, general: 'Email sudah terdaftar. Silakan gunakan email lain atau masuk.' }));
         } else if (error.message.includes('Invalid email')) {
           setErrors(prev => ({ ...prev, email: 'Format email tidak valid' }));
+        } else if (error.message.includes('Password')) {
+          setErrors(prev => ({ ...prev, password: 'Password tidak memenuhi kriteria keamanan' }));
         } else {
           setErrors(prev => ({ ...prev, general: error.message }));
         }
@@ -263,23 +224,47 @@ function RegisterPageContent() {
       }
 
       if (data.user) {
+        // Log successful registration
+        logSecurityEvent({
+          type: 'login_success',
+          identifier: sanitizedEmail,
+          details: { method: 'register' }
+        });
+        
         setRegistrationSuccess(true);
         // Auto redirect to login after successful registration
         setTimeout(() => {
-          router.push("/login");
+          router.push("/auth/login");
         }, 3000);
       }
     } catch (error) {
       console.error("Registration failed:", error);
-      setErrors(prev => ({ ...prev, general: 'Terjadi kesalahan. Silakan coba lagi.' }));
+      setErrors(prev => ({ ...prev, general: 'Terjadi kesalahan sistem. Silakan coba lagi.' }));
       setIsRegistering(false);
     }
   };
 
   const handleInputChange = (field: keyof typeof formData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }));
+    let value = e.target.value;
+    
+    // Input sanitization
+    if (field === "email") {
+      value = sanitizeInput(value).toLowerCase();
+    } else if (field === "fullName") {
+      value = sanitizeInput(value);
+    } else if (field === "password" || field === "confirmPassword") {
+      // For password, only remove control characters
+      value = value.replace(/[\x00-\x1F\x7F]/g, '');
+    }
+    
+    setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+    
+    // Clear general error as well
+    if (errors.general) {
+      setErrors(prev => ({ ...prev, general: '' }));
     }
   };
 
@@ -356,138 +341,156 @@ function RegisterPageContent() {
 
       {/* Back Button */}
       <Link 
-        href="/login"
+        href="/auth/login"
         className="absolute top-8 left-8 flex items-center gap-2 text-neutral_01 hover:text-neutral_02 transition-colors duration-300 z-20"
       >
         <ArrowLeft className="w-5 h-5" />
         <span className="text-sm font-medium">Kembali ke Login</span>
       </Link>
 
-      {/* Main Register Container */}
-      <div className="relative z-10 w-full max-w-md">
-        <GlassContainer className="p-10">
-          {/* Logo */}
-          <div className="mb-8 relative">
-            <div className="w-20 h-20 mx-auto mb-4 relative">
-              <Image
-                src="/assets/images/Infest 2025 1st Logo Outline.png"
-                alt="InFest USK Logo"
-                fill
-                className="object-contain filter drop-shadow-[0_0_20px_rgba(242,233,197,0.6)]"
-              />
-            </div>
-            <div className="text-center">
-              <h1 className={`text-2xl font-bold text-neutral_01 mb-2 ${dm_serif_display.className}`}>
-                Buat Akun Baru
-              </h1>
-              <p className="text-neutral_01/80 text-sm">
-                Bergabung dengan InFest USK
-              </p>
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {errors.general && (
-            <div className="flex items-center gap-2 p-4 mb-6 bg-red-500/10 border border-red-400/20 rounded-xl text-red-400 text-sm">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{errors.general}</span>
-            </div>
-          )}
-
-          {/* Register Form */}
-          <form onSubmit={handleRegister} className="space-y-4">
-            <GlassInput
-              type="text"
-              placeholder="Nama Lengkap"
-              value={formData.fullName}
-              onChange={handleInputChange('fullName')}
-              icon={UserIcon}
-              error={errors.fullName}
-              disabled={isRegistering}
-            />
-
-            <GlassInput
-              type="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleInputChange('email')}
-              icon={Mail}
-              error={errors.email}
-              disabled={isRegistering}
-            />
+      {/* Main Register Container - New Layout */}
+      <div className="relative z-10 w-full max-w-5xl">
+        <GlassContainer className="p-8 lg:p-12">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
             
-            <GlassInput
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleInputChange('password')}
-              icon={Lock}
-              error={errors.password}
-              disabled={isRegistering}
-              showPasswordToggle={true}
-              onTogglePassword={() => setShowPassword(!showPassword)}
-            />
-
-            <GlassInput
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="Konfirmasi Password"
-              value={formData.confirmPassword}
-              onChange={handleInputChange('confirmPassword')}
-              icon={Lock}
-              error={errors.confirmPassword}
-              disabled={isRegistering}
-              showPasswordToggle={true}
-              onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
-            />
-
-            <button
-              type="submit"
-              disabled={isRegistering}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-2xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {isRegistering ? (
-                <>
-                  <div className="w-6 h-6 relative">
-                    <div className="absolute inset-0 rounded-full border-2 border-brand_01/30"></div>
-                    <div className="absolute inset-0 rounded-full border-2 border-brand_01 border-t-transparent animate-spin"></div>
-                  </div>
-                  <span>Mendaftar...</span>
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-6 h-6" />
-                  <span>Daftar</span>
-                </>
-              )}
-            </button>
-
-            {/* Login Link */}
-            <div className="text-center">
-              <p className="text-neutral_01/60 text-sm">
-                Sudah punya akun?{" "}
-                <Link 
-                  href="/login" 
-                  className="text-neutral_02 hover:text-neutral_01 font-medium transition-colors"
-                >
-                  Masuk di sini
-                </Link>
-              </p>
+            {/* Left Side - Logo and Info */}
+            <div className="flex-1 text-center lg:text-left">
+              <div className="w-32 h-32 lg:w-40 lg:h-40 mx-auto lg:mx-0 mb-6 relative">
+                <Image
+                  src="/assets/images/Infest 2025 1st Logo Outline.png"
+                  alt="InFest USK Logo"
+                  fill
+                  className="object-contain filter drop-shadow-[0_0_30px_rgba(242,233,197,0.8)]"
+                />
+              </div>
+              <div className="mb-8">
+                <h1 className={`text-3xl lg:text-4xl font-bold text-neutral_01 mb-3 ${dm_serif_display.className}`}>
+                  Buat Akun Baru
+                </h1>
+                <p className="text-neutral_01/80 text-base lg:text-lg">
+                  Bergabung dengan InFest USK
+                </p>
+              </div>
+              
+              {/* Bottom Info - Moved inside card */}
+              <div className="text-center lg:text-left">
+                <p className="text-neutral_01/60 text-sm">
+                  Informatics Festival XI 2025
+                </p>
+                <p className="text-neutral_01/40 text-xs mt-1">
+                  Powered by HMIF USK
+                </p>
+              </div>
             </div>
-          </form>
 
-          {/* Additional Info */}
-          <div className="mt-8 text-center">
-            <p className="text-neutral_01/60 text-xs leading-relaxed">
-              Dengan mendaftar, Anda menyetujui{" "}
-              <Link href="/terms" className="text-neutral_02 hover:text-neutral_01 transition-colors">
-                Syarat & Ketentuan
-              </Link>{" "}
-              dan{" "}
-              <Link href="/privacy" className="text-neutral_02 hover:text-neutral_01 transition-colors">
-                Kebijakan Privasi
-              </Link>{" "}
-              kami.
-            </p>
+            {/* Right Side - Register Form */}
+            <div className="flex-1 w-full lg:w-auto">
+              <div className="space-y-6 w-full">
+                {/* Error Message */}
+                {errors.general && (
+                  <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-400/20 rounded-xl text-red-400 text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{errors.general}</span>
+                  </div>
+                )}
+
+                {/* Register Form */}
+                <form onSubmit={handleRegister} className="space-y-4 w-full">
+                  <GlassInput
+                    type="text"
+                    placeholder="Nama Lengkap"
+                    value={formData.fullName}
+                    onChange={handleInputChange('fullName')}
+                    icon={UserIcon}
+                    error={errors.fullName}
+                    disabled={isRegistering}
+                  />
+
+                  <GlassInput
+                    type="email"
+                    placeholder="Email"
+                    value={formData.email}
+                    onChange={handleInputChange('email')}
+                    icon={Mail}
+                    error={errors.email}
+                    disabled={isRegistering}
+                  />
+                  
+                  <GlassInput
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={handleInputChange('password')}
+                    icon={Lock}
+                    error={errors.password}
+                    disabled={isRegistering}
+                    showPasswordToggle={true}
+                    onTogglePassword={() => setShowPassword(!showPassword)}
+                  />
+
+                  <GlassInput
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Konfirmasi Password"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange('confirmPassword')}
+                    icon={Lock}
+                    error={errors.confirmPassword}
+                    disabled={isRegistering}
+                    showPasswordToggle={true}
+                    onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+                  />
+
+                  <button
+                    type="submit"
+                    disabled={isRegistering}
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-2xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {isRegistering ? (
+                      <>
+                        <div className="w-6 h-6 relative">
+                          <div className="absolute inset-0 rounded-full border-2 border-brand_01/30"></div>
+                          <div className="absolute inset-0 rounded-full border-2 border-brand_01 border-t-transparent animate-spin"></div>
+                        </div>
+                        <span>Mendaftar...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-6 h-6" />
+                        <span>Daftar</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Login Link */}
+                  <div className="text-center">
+                    <p className="text-neutral_01/60 text-sm">
+                      Sudah punya akun?{" "}
+                      <Link 
+                        href="/auth/login" 
+                        className="text-neutral_02 hover:text-neutral_01 font-medium transition-colors"
+                      >
+                        Masuk di sini
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+
+                {/* Additional Info */}
+                <div className="mt-8 text-center">
+                  <p className="text-neutral_01/60 text-xs leading-relaxed">
+                    Dengan mendaftar, Anda menyetujui{" "}
+                    <Link href="/terms" className="text-neutral_02 hover:text-neutral_01 transition-colors">
+                      Syarat & Ketentuan
+                    </Link>{" "}
+                    dan{" "}
+                    <Link href="/privacy" className="text-neutral_02 hover:text-neutral_01 transition-colors">
+                      Kebijakan Privasi
+                    </Link>{" "}
+                    kami.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </GlassContainer>
 
@@ -497,16 +500,6 @@ function RegisterPageContent() {
         <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
         <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
       </div>
-
-      {/* Bottom Info */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
-        <p className="text-neutral_01/60 text-sm">
-          Informatics Festival XI 2025
-        </p>
-        <p className="text-neutral_01/40 text-xs mt-1">
-          Powered by HMIF USK
-        </p>
-      </div>
     </div>
   );
 }
@@ -514,9 +507,9 @@ function RegisterPageContent() {
 export default function RegisterPage() {
   return (
     <Suspense fallback={<RegisterLoading />}>
-      <SessionWrapper>
+      <GuestLayout>
         <RegisterPageContent />
-      </SessionWrapper>
+      </GuestLayout>
     </Suspense>
   );
 }

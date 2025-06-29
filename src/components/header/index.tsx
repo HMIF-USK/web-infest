@@ -13,7 +13,7 @@ export const Header = () => {
   const navbarRef = useRef<HTMLDivElement>(null);
   const { isDesktop, isTablet, isMobile } = useScreenSize();
   const pathname = usePathname();
-  const notShowHeader = ["/login", "/auth/callback", "/dashboard"];
+  const notShowHeader = ["/auth", "/dashboard"];
 
   const navbar = [
     { name: "Home", destinationSection: "/" },
@@ -43,7 +43,7 @@ export const Header = () => {
 
   return (
     <>
-      {!notShowHeader.includes(pathname) && (
+      {!notShowHeader.some((path) => pathname.startsWith(path)) && (
         <header className="header fixed top-0 left-0 right-0 w-full z-[100] overflow-x-hidden">
       <div
         className={`${isMobile ? "container--mobile" : ""} ${

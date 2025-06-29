@@ -1,4 +1,4 @@
-import AuthLayout from "@/app/(layouts)/authLayout";
+import ProtectedLayout from "@/app/(layouts)/protectedLayout";
 import { LoadingAnimation } from "@/components/loadingAnimation";
 import { Sidebar } from "@/components/sidebar";
 import React, { Suspense } from "react";
@@ -15,14 +15,14 @@ const DashboardContent = ({ children }: { children: React.ReactNode }) => {
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <Suspense fallback={<LoadingAnimation loadingText="Redirecting" />}>
-      <AuthLayout>
+      <ProtectedLayout>
         <DashboardContent>
           <div className="flex flex-col gap-4">
             <h2 className="text-8xl">Dashboard</h2>
             {children}
           </div>
         </DashboardContent>
-      </AuthLayout>
+      </ProtectedLayout>
     </Suspense>
   );
 };

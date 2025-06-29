@@ -41,7 +41,7 @@ const CallbackAuth = () => {
     }
   }, [router]);
   return (
-    <LoadingAnimation loadingText="Redirecting" />
+    <LoadingAnimation loadingText="Redirecting" variant="standard"/>
   );
 };
 
