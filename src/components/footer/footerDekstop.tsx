@@ -9,7 +9,8 @@ import { socialAccounts } from "@/data/socialAccount";
 
 const FooterDekstop = () => {
   return (
-    <div className="bg-transparent w-full flex justify-between px-8 md:px-12 py-8 text-neutral_01">
+    <div className="bg-brand_02 w-full flex justify-between px-8 md:px-12 py-8 text-neutral_01 relative">
+      <div className="absolute w-2/3 h-[1px] top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
       <div className="flex flex-col justify-end text-sm w-1/3">
         <p className="font-bold text-base uppercase tracking-wide">Address</p>
         <p className="text-sm mt-3 text-balance">

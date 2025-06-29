@@ -5,14 +5,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { useScreenSize } from "../../libs/hooks/screenSizeValidation";
 import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
 import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const Header = () => {
   const [isMenuShow, setIsMenuShow] = useState<boolean>(false);
   const navbarRef = useRef<HTMLDivElement>(null);
   const { isDesktop, isTablet, isMobile } = useScreenSize();
+  const pathname = usePathname();
+  const notShowHeader = ["/login", "/auth/callback", "/dashboard"];
 
   const navbar = [
-    { name: "Home", destinationSection: "hero" },
+    { name: "Home", destinationSection: "/" },
     { name: "Competition", destinationSection: "competition" },
     { name: "National Seminar", destinationSection: "seminar" },
   ];
@@ -38,7 +42,9 @@ export const Header = () => {
   }, []);
 
   return (
-    <header className="header fixed top-0 left-0 right-0 w-full z-[100] overflow-x-hidden">
+    <>
+      {!notShowHeader.includes(pathname) && (
+        <header className="header fixed top-0 left-0 right-0 w-full z-[100] overflow-x-hidden">
       <div
         className={`${isMobile ? "container--mobile" : ""} ${
           dm_serif_display.className
@@ -62,23 +68,24 @@ export const Header = () => {
             />
             {/* </div> */}
             {isDesktop && (
-              <div className="flex gap-10 tracking-wide">
+              <div className="flex gap-10 tracking-wide items-center">
                 {navbar.map((item) => (
-                  <button
+                  <Link
                     key={item.name}
-                    onClick={() => scrollIntoSection(item.destinationSection)}
+                    href={item.destinationSection}
                     className="glass-button text-white font-bold text-sm lg:text-xl lg:hover:-translate-y-1 duration-200"
                   >
                     {item.name}
-                  </button>
+                  </Link>
                 ))}
               </div>
             )}
-            <button
-              className={`font-bold text-sm md:text-base py-2 md:py-0 text-brand_01 px-8 rounded-2xl bg-gradient-to-r from-neutral_02 to-neutral_01 shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] duration-200`}
+            <Link
+              href={"/auth/login"}
+              className={`font-bold text-sm md:text-base py-2 md:py-0 text-brand_01 px-8 rounded-2xl bg-gradient-to-r from-neutral_02 to-neutral_01 shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] duration-200 flex items-center`}
             >
               Login
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -104,6 +111,8 @@ export const Header = () => {
           />
         </filter>
       </svg>
-    </header>
+        </header>
+      )}
+    </>
   );
 };
