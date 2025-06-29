@@ -35,7 +35,6 @@ const GlowingOrb = ({
 const InfestWebsite = () => {
   const [isMarqueeLoading, setIsMarqueeLoading] = useState(true);
   const { isMobile, isTablet, isDesktop } = useScreenSize();
-  const [showHeroBg, setShowHeroBg] = useState(false);
 
   // Sample images for the 3D marquee
   const images = [
@@ -93,25 +92,24 @@ const InfestWebsite = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowHeroBg(true), 500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <div className="w-full h-full text-neutral_01">
+    <div className="w-full h-full text-neutral_01">      
       {/* Hero Section */}
       <section
         id="hero"
         className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-20 py-10 md:py-20 px-4 md:px-20"
       >
-        <div className={`absolute inset-0 w-screen h-1/4 transition-opacity duration-1000 ${showHeroBg ? 'opacity-100' : 'opacity-0'}`}>
+        <div className={`absolute inset-0 w-screen h-1/4`}>
           <Image
             src="/assets/images/goldconfet Infest USK.webp"
             alt="Informatics Festival (Infest) HMIF USK"
             fill
             priority
-            className="object-cover w-full h-full opacity-25"
+            className="object-cover w-full h-full opacity-60"
+            style={{
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
+            }}
           />
         </div>
         <div className="absolute inset-0 overflow-hidden -z-10">
@@ -120,7 +118,7 @@ const InfestWebsite = () => {
         </div>
         <div className="mt-10 flex flex-col gap-6 items-center">
           <h1
-            className={`${dm_serif_display.className} text-glow text-[6.8rem] text-neutral_01 z-20 text-center  bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_01 bg-clip-text text-transparent`}
+            className={`${dm_serif_display.className} text-[6.8rem] text-neutral_01 z-20 text-center bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_02 bg-clip-text text-transparent`}
             style={{ lineHeight: "1" }}
           >
             Informatics Festival XI 2025
@@ -376,7 +374,15 @@ const InfestWebsite = () => {
               >
                 <div className="w-full h-full bg-white/20 rounded-3xl shadow-lg perspective-left shadow-black/60 backdrop-blur-sm border border-white/80"></div>
               </div>
-              <div className="w-full md:w-1/3 h-1/3 bg-white/20 rounded-3xl shadow-lg shadow-black/60 backdrop-blur-sm border border-white/80"></div>
+              <div className="w-full md:w-1/3 h-1/3 bg-white/20 rounded-3xl shadow-lg shadow-black/60 backdrop-blur-sm border border-white/80 flex justify-center items-center relative">
+                <Image
+                  src="/assets/images/hackathon.png"
+                  alt="Informatics Festival (Infest) HMIF USK"
+                  width={500}
+                  height={500}
+                  className="object-cover w-1/2 h-1/2 rounded-3xl"
+                />
+              </div>
               <div
                 className="w-1/4 h-1/3 hidden md:block"
                 style={{ perspective: "600px" }}
@@ -524,7 +530,7 @@ const InfestWebsite = () => {
         </div>
       </section>
 
-      <div className="w-full md:w-2/3 mx-auto h-[1px] bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
+      {/* <div className="w-full md:w-2/3 mx-auto h-[1px] bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div> */}
     </div>
   );
 };

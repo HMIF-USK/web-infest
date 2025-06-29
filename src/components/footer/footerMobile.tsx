@@ -9,7 +9,8 @@ import { socialAccounts } from "@/data/socialAccount";
 
 const FooterMobile = () => {
   return (
-    <div className="bg-transparent w-full flex flex-col px-6 py-8 gap-4 text-neutral_01 items-center">
+    <div className="bg-brand_02 w-full flex flex-col px-6 py-8 gap-4 text-neutral_01 items-center relative">
+      <div className="absolute w-1/2 top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
       <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
         <Image
           src={"/assets/images/Infest 2025 1st Logo Outline.png"}
