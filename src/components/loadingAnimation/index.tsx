@@ -2,9 +2,14 @@ import { dm_serif_display } from "@/app/fonts/fonts";
 import Image from "next/image";
 import React from "react";
 
-export const LoadingAnimation = ({ loadingText }: { loadingText: string }) => {
+interface LoadingAnimationProps {
+  loadingText: string;
+  variant?: "floating" | "standard";
+}
+
+export const LoadingAnimation = ({ loadingText, variant = "floating"}: LoadingAnimationProps) => {
   return (
-    <div className="w-screen h-screen bg-brand_02/60 backdrop-blur absolute inset-0 flex flex-col justify-center items-center z-50">
+    <div className={`${variant === "floating" ? "fixed inset-0 backdrop-blur h-screen" : "h-[80vh]"} w-screen bg-brand_02/60 flex flex-col justify-center items-center z-50`}>
       <Image
         src="/assets/images/Infest 2025 1st Logo Outline.png"
         alt="Informatics Festival (Infest) HMIF USK Logo"
