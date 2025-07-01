@@ -57,9 +57,9 @@ export function validatePassword(password: string): { isValid: boolean; error?: 
   }
   
   // Check for common weak passwords
-  if (!PASSWORD_REGEX.noCommonPasswords.test(password)) {
-    return { isValid: false, error: 'Password terlalu umum, gunakan password yang lebih kuat' };
-  }
+  // if (!PASSWORD_REGEX.noCommonPasswords.test(password)) {
+  //   return { isValid: false, error: 'Password terlalu umum, gunakan password yang lebih kuat' };
+  // }
   
   // Calculate password strength
   let strength = 'Lemah';

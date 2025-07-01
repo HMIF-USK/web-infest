@@ -6,19 +6,27 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
-import { ArrowLeft, Lock, Eye, EyeOff, AlertCircle, CheckCircle, Save } from "lucide-react";
+import {
+  ArrowLeft,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle,
+  Save,
+} from "lucide-react";
 
 // Input Component with glass effect
-const GlassInput = ({ 
-  type = "text", 
-  placeholder, 
-  value, 
-  onChange, 
-  icon: Icon, 
+const GlassInput = ({
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  icon: Icon,
   error,
   disabled = false,
   showPasswordToggle = false,
-  onTogglePassword
+  onTogglePassword,
 }: {
   type?: string;
   placeholder: string;
@@ -32,7 +40,11 @@ const GlassInput = ({
 }) => (
   <div className="relative mb-4">
     <div className="relative">
-      <div className={`flex items-center w-full px-4 py-3 bg-neutral_01/10 backdrop-blur-md border ${error ? 'border-red-400/50' : 'border-neutral_01/20'} rounded-xl transition-all duration-300 focus-within:border-neutral_02/50 focus-within:bg-neutral_01/15`}>
+      <div
+        className={`flex items-center w-full px-4 py-3 bg-neutral_01/10 backdrop-blur-md border ${
+          error ? "border-red-400/50" : "border-neutral_01/20"
+        } rounded-xl transition-all duration-300 focus-within:border-neutral_02/50 focus-within:bg-neutral_01/15`}
+      >
         {Icon && <Icon className="w-5 h-5 text-neutral_01/60 mr-3" />}
         <input
           type={type}
@@ -48,7 +60,11 @@ const GlassInput = ({
             onClick={onTogglePassword}
             className="text-neutral_01/60 hover:text-neutral_01 transition-colors ml-2"
           >
-            {type === "password" ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            {type === "password" ? (
+              <Eye className="w-5 h-5" />
+            ) : (
+              <EyeOff className="w-5 h-5" />
+            )}
           </button>
         )}
       </div>
@@ -63,7 +79,13 @@ const GlassInput = ({
 );
 
 // Glass Effect Component
-const GlassContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+const GlassContainer = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
   <div className={`glass-container glass-container--rounded ${className}`}>
     <div className="glass-filter" />
     <div className="glass-specular" />
@@ -74,11 +96,7 @@ const GlassContainer = ({ children, className = "" }: { children: React.ReactNod
 );
 
 // Glowing Orb Effect
-const GlowingOrb = ({
-  size = 100,
-  color = "brand_01",
-  delay = 0,
-}) => (
+const GlowingOrb = ({ size = 100, color = "brand_01", delay = 0 }) => (
   <div
     className={`absolute rounded-full blur-3xl animate-pulse`}
     style={{
@@ -101,113 +119,138 @@ function ResetPasswordContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    password: '',
-    confirmPassword: ''
+    password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({
-    password: '',
-    confirmPassword: '',
-    general: ''
+    password: "",
+    confirmPassword: "",
+    general: "",
   });
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [tokens, setTokens] = useState({
+    accessToken: "",
+    refreshToken: "",
+  });
+  // const accessToken = searchParams.get("access_token");
+  // const refreshToken = searchParams.get("refresh_token");
 
   useEffect(() => {
-    // Check if we have the required tokens from the URL
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get("access_token") || "";
+    const refreshToken = params.get("refresh_token") || "";
+    setTokens({ accessToken, refreshToken });
+
     if (!accessToken || !refreshToken) {
-      setErrors(prev => ({ ...prev, general: 'Link reset password tidak valid atau sudah expired.' }));
+      setErrors((prev) => ({
+        ...prev,
+        general: "Link reset password tidak valid atau sudah expired.",
+      }));
     }
   }, [searchParams]);
 
   const validateForm = () => {
-    const newErrors = { password: '', confirmPassword: '', general: '' };
-    
+    const newErrors = { password: "", confirmPassword: "", general: "" };
+
     if (!formData.password) {
-      newErrors.password = 'Password baru harus diisi';
+      newErrors.password = "Password baru harus diisi";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password minimal 6 karakter';
+      newErrors.password = "Password minimal 6 karakter";
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password = 'Password harus mengandung huruf besar, huruf kecil, dan angka';
+      newErrors.password =
+        "Password harus mengandung huruf besar, huruf kecil, dan angka";
     }
-    
+
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Konfirmasi password harus diisi';
+      newErrors.confirmPassword = "Konfirmasi password harus diisi";
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Password tidak sama';
+      newErrors.confirmPassword = "Password tidak sama";
     }
-    
+
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== '');
+    return !Object.values(newErrors).some((error) => error !== "");
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (!accessToken || !refreshToken) {
-      setErrors(prev => ({ ...prev, general: 'Link reset password tidak valid.' }));
+
+    if (!tokens.accessToken || !tokens.refreshToken) {
+      setErrors((prev) => ({
+        ...prev,
+        general: "Link reset password tidak valid.",
+      }));
       return;
     }
-    
+
     try {
       setIsUpdating(true);
-      setErrors({ password: '', confirmPassword: '', general: '' });
-      
+      setErrors({ password: "", confirmPassword: "", general: "" });
+
       // Set the session first
       const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
       });
 
       if (sessionError) {
         console.error("Session error:", sessionError);
-        setErrors(prev => ({ ...prev, general: 'Link reset password tidak valid atau sudah expired.' }));
+        setErrors((prev) => ({
+          ...prev,
+          general: "Link reset password tidak valid atau sudah expired.",
+        }));
         setIsUpdating(false);
         return;
       }
 
       // Update the password
       const { error } = await supabase.auth.updateUser({
-        password: formData.password
+        password: formData.password,
       });
 
       if (error) {
         console.error("Update password error:", error);
-        setErrors(prev => ({ ...prev, general: 'Gagal mengupdate password. Silakan coba lagi.' }));
+        setErrors((prev) => ({
+          ...prev,
+          general: "Gagal mengupdate password. Silakan coba lagi.",
+        }));
         setIsUpdating(false);
         return;
       }
 
       setResetSuccess(true);
-      
+
       // Auto redirect to login after successful reset
       setTimeout(() => {
-        router.push("/login");
+        router.push("/auth/login");
       }, 3000);
     } catch (error) {
       console.error("Reset password failed:", error);
-      setErrors(prev => ({ ...prev, general: 'Terjadi kesalahan. Silakan coba lagi.' }));
+      setErrors((prev) => ({
+        ...prev,
+        general: "Terjadi kesalahan. Silakan coba lagi.",
+      }));
       setIsUpdating(false);
     }
   };
 
-  const handleInputChange = (field: 'password' | 'confirmPassword') => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
-    }
-  };
+  const handleInputChange =
+    (field: "password" | "confirmPassword") =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+      }
+    };
 
   if (resetSuccess) {
     return (
-      <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}
+      >
         <div className="absolute inset-0 overflow-hidden">
           <GlowingOrb size={400} color="brand_01" delay={0} />
           <GlowingOrb size={300} color="neutral_01" delay={2} />
@@ -219,14 +262,17 @@ function ResetPasswordContent() {
             <div className="w-20 h-20 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center">
               <CheckCircle className="w-12 h-12 text-green-400" />
             </div>
-            
-            <h1 className={`text-2xl font-bold text-neutral_01 mb-4 ${dm_serif_display.className}`}>
+
+            <h1
+              className={`text-2xl font-bold text-neutral_01 mb-4 ${dm_serif_display.className}`}
+            >
               Password Berhasil Diubah!
             </h1>
-            
+
             <div className="space-y-4 text-neutral_01/80">
               <p>
-                Password Anda telah berhasil diperbarui. Sekarang Anda dapat masuk dengan password baru.
+                Password Anda telah berhasil diperbarui. Sekarang Anda dapat
+                masuk dengan password baru.
               </p>
               <p className="text-sm">
                 Anda akan diarahkan ke halaman login dalam beberapa detik...
@@ -234,7 +280,7 @@ function ResetPasswordContent() {
             </div>
 
             <Link
-              href="/login"
+              href="/auth/login"
               className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold rounded-xl hover:scale-105 transition-all duration-300"
             >
               Lanjut ke Login
@@ -246,13 +292,15 @@ function ResetPasswordContent() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}>
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}
+    >
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <GlowingOrb size={400} color="brand_01" delay={0} />
         <GlowingOrb size={300} color="neutral_01" delay={2} />
         <GlowingOrb size={200} color="brand_01" delay={4} />
-        
+
         {/* Floating particles */}
         <div className="absolute top-20 left-20 w-2 h-2 bg-neutral_01/60 rounded-full animate-twinkle"></div>
         <div className="absolute top-40 right-32 w-1 h-1 bg-neutral_02/80 rounded-full animate-twinkle-delayed"></div>
@@ -269,21 +317,14 @@ function ResetPasswordContent() {
             fill
             className="object-cover"
             style={{
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)'
+              maskImage:
+                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)",
             }}
           />
         </div>
-      </div>
-
-      {/* Back Button */}
-      <Link 
-        href="/login"
-        className="absolute top-8 left-8 flex items-center gap-2 text-neutral_01 hover:text-neutral_02 transition-colors duration-300 z-20"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span className="text-sm font-medium">Kembali ke Login</span>
-      </Link>
+      </div>      
 
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-md">
@@ -299,7 +340,9 @@ function ResetPasswordContent() {
               />
             </div>
             <div className="text-center">
-              <h1 className={`text-2xl font-bold text-neutral_01 mb-2 ${dm_serif_display.className}`}>
+              <h1
+                className={`text-2xl font-bold text-neutral_01 mb-2 ${dm_serif_display.className}`}
+              >
                 Reset Password
               </h1>
               <p className="text-neutral_01/80 text-sm">
@@ -322,7 +365,7 @@ function ResetPasswordContent() {
               type={showPassword ? "text" : "password"}
               placeholder="Password Baru"
               value={formData.password}
-              onChange={handleInputChange('password')}
+              onChange={handleInputChange("password")}
               icon={Lock}
               error={errors.password}
               disabled={isUpdating}
@@ -334,12 +377,14 @@ function ResetPasswordContent() {
               type={showConfirmPassword ? "text" : "password"}
               placeholder="Konfirmasi Password Baru"
               value={formData.confirmPassword}
-              onChange={handleInputChange('confirmPassword')}
+              onChange={handleInputChange("confirmPassword")}
               icon={Lock}
               error={errors.confirmPassword}
               disabled={isUpdating}
               showPasswordToggle={true}
-              onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
+              onTogglePassword={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
             />
 
             <button
@@ -384,9 +429,7 @@ function ResetPasswordContent() {
         <p className="text-neutral_01/60 text-sm">
           Informatics Festival XI 2025
         </p>
-        <p className="text-neutral_01/40 text-xs mt-1">
-          Powered by HMIF USK
-        </p>
+        <p className="text-neutral_01/40 text-xs mt-1">Powered by HMIF USK</p>
       </div>
     </div>
   );
