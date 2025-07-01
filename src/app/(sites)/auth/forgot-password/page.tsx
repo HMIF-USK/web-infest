@@ -35,7 +35,7 @@ const GlassInput = ({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50"
+          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-sm"
         />
       </div>
     </div>
@@ -109,7 +109,7 @@ function ForgotPasswordContent() {
       setError('');
       
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       });
 
       if (error) {
@@ -167,7 +167,7 @@ function ForgotPasswordContent() {
 
             <div className="flex flex-col gap-3 mt-6">
               <Link
-                href="/login"
+                href="/auth/login"
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold rounded-xl hover:scale-105 transition-all duration-300"
               >
                 Kembali ke Login
@@ -218,16 +218,7 @@ function ForgotPasswordContent() {
             }}
           />
         </div>
-      </div>
-
-      {/* Back Button */}
-      <Link 
-        href="/login"
-        className="absolute top-8 left-8 flex items-center gap-2 text-neutral_01 hover:text-neutral_02 transition-colors duration-300 z-20"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span className="text-sm font-medium">Kembali ke Login</span>
-      </Link>
+      </div>    
 
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-md">
@@ -237,7 +228,7 @@ function ForgotPasswordContent() {
             <div className="w-20 h-20 mx-auto mb-4 relative">
               <Image
                 src="/assets/images/Infest 2025 1st Logo Outline.png"
-                alt="InFest USK Logo"
+                alt="Infest USK Logo"
                 fill
                 className="object-contain filter drop-shadow-[0_0_20px_rgba(242,233,197,0.6)]"
               />
@@ -275,7 +266,7 @@ function ForgotPasswordContent() {
             <button
               type="submit"
               disabled={isSending}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-2xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isSending ? (
                 <>
@@ -288,7 +279,7 @@ function ForgotPasswordContent() {
               ) : (
                 <>
                   <Send className="w-6 h-6" />
-                  <span>Kirim Link Reset</span>
+                  <span className="text-sm">Kirim Link Reset</span>
                 </>
               )}
             </button>

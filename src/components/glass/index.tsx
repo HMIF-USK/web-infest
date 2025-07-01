@@ -7,7 +7,7 @@ export const Glass = ({ children, className }: { children: React.ReactNode, clas
         <div className="glass-filter" />
         <div className="glass-overlay" />
         <div className="glass-specular" />
-        <div className={`glass-content ${className} justify-center items-center`}>
+        <div className={`glass-content ${className}`}>
           {children}
         </div>
       </div>

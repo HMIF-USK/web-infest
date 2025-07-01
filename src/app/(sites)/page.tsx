@@ -80,7 +80,7 @@ const InfestWebsite = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsMarqueeLoading(false);
-    }, 0);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -97,7 +97,7 @@ const InfestWebsite = () => {
       {/* Hero Section */}
       <section
         id="hero"
-        className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-20 py-10 md:py-20 px-4 md:px-20"
+        className="w-full min-h-[80vh] flex flex-col relative gap-10 md:gap-12 lg:gap-20 py-6 md:py-12 lg:py-20 px-4 md:px-8 lg:px-20"
       >
         <div className={`absolute inset-0 w-screen h-1/4`}>
           <Image
@@ -105,7 +105,7 @@ const InfestWebsite = () => {
             alt="Informatics Festival (Infest) HMIF USK"
             fill
             priority
-            className="object-cover w-full h-full opacity-60"
+            className="object-cover w-full h-full opacity-50 lg:opacity-60"
             style={{
               maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)'
@@ -118,46 +118,46 @@ const InfestWebsite = () => {
         </div>
         <div className="mt-10 flex flex-col gap-6 items-center">
           <h1
-            className={`${dm_serif_display.className} text-[6.8rem] text-neutral_01 z-20 text-center bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_02 bg-clip-text text-transparent`}
+            className={`${dm_serif_display.className} filter mt-6 drop-shadow-xl shadow-black text-5xl md:text-7xl lg:text-[6.8rem] text-neutral_01 z-20 text-center bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_02 bg-clip-text text-transparent`}
             style={{ lineHeight: "1" }}
           >
             Informatics Festival XI 2025
           </h1>
-          <div className="w-full flex flex-col md:flex-row justify-center items-center z-20 gap-4 md:gap-8 px-4">
-            <p className="text-xs md:text-sm bg-gradient-to-r from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
+          <div className="w-full flex justify-center items-center z-20 gap-3 md:gap-6 lg:gap-8 px-4">
+            <p className="text-xs md:text-sm lg:text-sm bg-gradient-to-r text-end from-neutral_02 to-neutral_01 bg-clip-text text-transparent md:text-left">
               Get ready for the biggest tech festival
             </p>
             <div
-              className={`px-3 py-2.5 text-xs md:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}
+              className={`px-2.5 py-2 md:px-3 md:py-2.5 text-xs md:text-sm lg:text-sm shadow-[0_0_40px_rgba(242,233,197,0.8)] border border-neutral_01/80 text-brand_01 rounded-full ${nuosu_sil.className} bg-gradient-to-r from-neutral_02 to-neutral_01`}
             >
               XI
             </div>
-            <p className="text-xs md:text-sm bg-gradient-to-l from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-center md:text-left">
+            <p className="text-xs md:text-sm lg:text-sm bg-gradient-to-l from-neutral_02 to-neutral_01 bg-clip-text text-transparent text-start md:text-left">
               Where Innovation Meets Excellence
             </p>
           </div>
-          <div className="flex gap-4 mx-auto w-1/2 font-semibold filter drop-shadow-[0_0_40px_rgba(242,233,197,0.8)]">
-            <button className="flex-1 text-brand_01 rounded-xl shadow-xl px-6 py-3 bg-neutral_01 border border-white/20 flex justify-center items-center gap-4">
-              <Trophy />
+          <div className="flex gap-3 md:gap-4 justify-center w-full md:w-3/4 lg:w-1/2 font-semibold filter drop-shadow-[0_0_40px_rgba(242,233,197,0.8)]">
+            <button className="flex-1 text-brand_01 rounded-xl text-sm md:text-base shadow-xl px-4 md:px-6 py-3 bg-neutral_01 border border-white/20 flex justify-center items-center gap-2 md:gap-4">
+              <Trophy size={18} className="md:w-5 md:h-5"/>
               Competitions
             </button>
-            <button className="flex-1 text-neutral_01 rounded-xl shadow-xl px-6 py-3 bg-brand_01 border border-neutral_01 flex justify-center items-center gap-4">
-              <Speech />
+            <button className="flex-1 text-neutral_01 rounded-xl text-sm md:text-base shadow-xl px-4 md:px-6 py-3 bg-brand_01 border border-neutral_01 flex justify-center items-center gap-2 md:gap-4">
+              <Speech size={20} className="md:w-[22px] md:h-[22px]"/>
               <span>National Seminar</span>
             </button>
           </div>
         </div>
         {/* 3D Marquee Container */}
         <div
-          className="m-auto w-full h-full rounded-3xl z-30 bg-gradient-radial from-neutral_01/60 via-transparent to-transparent p-2 md:p-4 flex ring-1 ring-neutral_01/10 relative overflow-hidden shadow-[0_0_40px_rgba(242,233,197,0.8)]"
+          className="m-auto w-full h-full rounded-3xl z-30 bg-gradient-radial from-neutral_01/60 via-transparent to-transparent p-2 md:p-3 lg:p-4 flex ring-1 ring-neutral_01/10 relative overflow-hidden shadow-[0_0_40px_rgba(242,233,197,0.8)]"
           data-aos="fade-up"
         >
           {isMarqueeLoading ? (
-            <div className="m-auto flex flex-col h-[40vh] md:h-[80vh] justify-center items-center animate-pulse">
-              <div className="w-20 h-20 md:w-32 md:h-32 bg-gradient-to-br from-neutral_01/20 to-neutral_02/20 rounded-2xl flex items-center justify-center mb-4">
-                <div className="text-4xl">🎭</div>
+            <div className="m-auto flex flex-col h-[40vh] md:h-[60vh] lg:h-[80vh] w-full justify-center items-center animate-pulse bg-brand_02/60">
+              <div className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-neutral_01/20 to-neutral_02/20 rounded-2xl flex items-center justify-center mb-4">
+                <div className="text-2xl md:text-3xl lg:text-4xl">🎭</div>
               </div>
-              <p className="font-bold text-neutral_01 text-center text-lg md:text-xl">
+              <p className="font-bold text-neutral_01 text-center text-base md:text-lg lg:text-xl">
                 Loading Memories...
               </p>
               <div className="mt-4 flex space-x-2">
@@ -175,15 +175,15 @@ const InfestWebsite = () => {
           ) : (
             <ThreeDMarquee images={images} />
           )}
-          <div className="absolute top-2 z-0 left-2 w-6 h-6 md:top-4 md:left-4 md:w-8 md:h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
-          <div className="absolute top-2 z-0 right-2 w-6 h-6 md:top-4 md:right-4 md:w-8 md:h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
-          <div className="absolute bottom-2 z-0 left-2 w-6 h-6 md:bottom-4 md:left-4 md:w-8 md:h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
-          <div className="absolute bottom-2 z-0 right-2 w-6 h-6 md:bottom-4 md:right-4 md:w-8 md:h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
+          <div className="absolute top-2 z-0 left-2 w-5 h-5 md:top-3 md:left-3 md:w-6 md:h-6 lg:top-4 lg:left-4 lg:w-8 lg:h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
+          <div className="absolute top-2 z-0 right-2 w-5 h-5 md:top-3 md:right-3 md:w-6 md:h-6 lg:top-4 lg:right-4 lg:w-8 lg:h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
+          <div className="absolute bottom-2 z-0 left-2 w-5 h-5 md:bottom-3 md:left-3 md:w-6 md:h-6 lg:bottom-4 lg:left-4 lg:w-8 lg:h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
+          <div className="absolute bottom-2 z-0 right-2 w-5 h-5 md:bottom-3 md:right-3 md:w-6 md:h-6 lg:bottom-4 lg:right-4 lg:w-8 lg:h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
         </div>
-        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 md:gap-0">
-          <div className="flex flex-col w-full md:w-1/2 gap-6 md:gap-8 z-10">
+        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 lg:gap-0">
+          <div className="flex flex-col w-full md:w-1/2 gap-4 md:gap-6 lg:gap-8 z-10">
             <h2
-              className={`text-5xl md:text-[7rem] ${dm_serif_display.className} bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_01 bg-clip-text text-transparent`}
+              className={`text-4xl md:text-5xl lg:text-[7rem] ${dm_serif_display.className} bg-gradient-to-r from-neutral_02 via-neutral_01 to-neutral_01 bg-clip-text text-transparent text-center md:text-start`}
               style={{
                 lineHeight: "1",
               }}
@@ -192,7 +192,7 @@ const InfestWebsite = () => {
               Empowering the Digital Generation
             </h2>
             <p
-              className="text-base md:text-lg"
+              className="text-sm md:text-base lg:text-lg text-center md:text-start"
               data-aos="fade-right"
               data-aos-delay="100"
             >
@@ -208,7 +208,7 @@ const InfestWebsite = () => {
             </p>
           </div>
           <div
-            className="w-full md:w-1/2 flex justify-center md:justify-end relative mt-8 md:mt-0"
+            className="w-full md:w-1/2 flex justify-center md:justify-end relative mt-6 md:mt-8 lg:mt-0"
             data-aos="fade-left"
             data-aos-delay="100"
           >
@@ -229,7 +229,7 @@ const InfestWebsite = () => {
 
             {/* Rotating Ring Effects */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-[110%] h-[110%] border border-neutral_01/20 rounded-full animate-spin-slow"></div>
+              <div className="w-[86%] h-[100%] border border-neutral_01/20 rounded-full animate-spin-slow"></div>
               <div className="absolute w-[90%] h-[90%] border border-brand_01/30 rounded-full animate-reverse-spin-slow"></div>
             </div>
 
@@ -248,7 +248,7 @@ const InfestWebsite = () => {
                 alt="Informatics Festival (Infest) HMIF USK Logo"
                 width={500}
                 height={500}
-                className="object-contain  w-full md:w-[90%] floating-element filter drop-shadow-[0_0_30px_rgba(242,233,197,0.6)] hover:drop-shadow-[0_0_50px_rgba(242,233,197,0.8)] transition-all duration-500"
+                className="object-contain w-full md:w-[90%] lg:w-[90%] floating-element filter drop-shadow-[0_0_30px_rgba(242,233,197,0.6)] hover:drop-shadow-[0_0_50px_rgba(242,233,197,0.8)] transition-all duration-500"
               />
             </div>
 
@@ -269,14 +269,14 @@ const InfestWebsite = () => {
             data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
             data-aos-delay={`${isDesktop && "300"}`}
           >
-            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
-              <p className="text-lg md:text-2xl font-medium">Contributed By</p>
+            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center text-center">
+              <p className="text-lg md:text-xl lg:text-2xl font-medium">Contributed By</p>
               <AnimatedCountUp
                 end={900}
                 suffix="+"
-                className="text-4xl md:text-6xl font-bold text-glow"
+                className="text-4xl lg:text-6xl font-bold text-glow"
               />
-              <p className="text-lg md:text-2xl font-medium text-center w-4/5">
+              <p className="text-lg md:text-xl lg:text-2xl font-medium text-center w-full lg:w-4/5">
                 Competitions & National Seminar
               </p>
             </Glass>
@@ -285,16 +285,14 @@ const InfestWebsite = () => {
             className="w-full h-full order-1 md:order-2"
             data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
           >
-            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
-              <p className="text-lg md:text-2xl font-medium">
-                Rollback the Glory
-              </p>
+            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center text-center">
+              <p className="text-lg md:text-xl lg:text-2xl font-medium">Rollback the Glory</p>
               <AnimatedCountUp
                 end={2024}
                 separator=""
-                className="text-4xl md:text-6xl font-bold text-glow"
+                className="text-4xl lg:text-6xl font-bold text-glow"
               />
-              <p className="text-lg md:text-2xl font-medium text-center w-3/5">
+              <p className="text-lg md:text-xl lg:text-2xl font-medium text-center w-full lg:w-3/5">
                 The Momentum Behind INFEST X
               </p>
             </Glass>
@@ -304,17 +302,15 @@ const InfestWebsite = () => {
             data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
             data-aos-delay={`${isDesktop && "300"}`}
           >
-            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center">
-              <p className="text-lg md:text-2xl font-medium">
-                In Collaboration With
-              </p>
+            <Glass className="h-40 md:h-56 flex flex-col items-center justify-center text-center">
+              <p className="text-lg md:text-xl lg:text-2xl font-medium">In Collaboration With</p>
               <AnimatedCountUp
                 duration={4}
                 end={25}
                 suffix="+"
-                className="text-4xl md:text-6xl font-bold text-glow"
+                className="text-4xl lg:text-6xl font-bold text-glow"
               />
-              <p className="text-lg md:text-2xl font-medium w-1/3 text-center">
+              <p className="text-lg lg:text-2xl font-medium w-full lg:w-1/3 text-center">
                 Partners & Sponsors
               </p>
             </Glass>
@@ -348,16 +344,16 @@ const InfestWebsite = () => {
           {/* Section Title */}
           <div className="text-center" data-aos="fade-up" data-aos-delay="200">
             <h2
-              className={`text-3xl md:text-5xl lg:text-8xl font-bold text-neutral_01 mb-2 md:mb-4 ${dm_serif_display.className}`}
+              className={`text-3xl md:text-6xl lg:text-8xl font-bold text-neutral_01 mb-2 md:mb-4 ${dm_serif_display.className}`}
             >
               Competitions
             </h2>
-            <p className="text-base md:text-xl text-neutral_01/80 max-w-2xl mx-auto">
+            <p className="text-sm md:text-lg lg:text-xl text-neutral_01/80 max-w-2xl mx-auto">
               Three exciting competitions await. Can you guess what they are?
             </p>
           </div>
           <div
-            className="w-full h-[300px] md:h-[655px] relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-12 mt-4 md:mt-0"
+            className="w-full h-[250px] md:h-[500px] lg:h-[655px] relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 lg:gap-12 mt-4 md:mt-0"
             data-aos="fade-up"
             data-aos-delay="500"
           >
@@ -367,20 +363,20 @@ const InfestWebsite = () => {
               fill
               className="object-contain w-full h-full"
             />
-            <div className="flex w-full gap-4 md:gap-12 justify-between items-center px-2 md:px-20 absolute top-0 left-0 h-full">
+            <div className="flex w-full gap-4 md:gap-8 lg:gap-12 justify-between items-center px-2 md:px-12 lg:px-20 absolute top-0 left-0 h-full">
               <div
                 className="w-1/4 h-1/3 hidden md:block"
                 style={{ perspective: "600px" }}
               >
                 <div className="w-full h-full bg-white/20 rounded-3xl shadow-lg perspective-left shadow-black/60 backdrop-blur-sm border border-white/80"></div>
               </div>
-              <div className="w-full md:w-1/3 h-1/3 bg-white/20 rounded-3xl shadow-lg shadow-black/60 backdrop-blur-sm border border-white/80 flex justify-center items-center relative">
+              <div className="w-full md:w-1/3 h-1/3 bg-white/20 rounded-2xl md:rounded-3xl shadow-lg shadow-black/60 backdrop-blur-sm border border-white/80 flex justify-center items-center relative">
                 <Image
                   src="/assets/images/hackathon.png"
                   alt="Informatics Festival (Infest) HMIF USK"
                   width={500}
                   height={500}
-                  className="object-cover w-1/2 h-1/2 rounded-3xl"
+                  className="object-cover w-1/2 h-1/2 rounded-2xl md:rounded-3xl"
                 />
               </div>
               <div
@@ -399,7 +395,7 @@ const InfestWebsite = () => {
       {/* Seminar Section */}
       <section
         id="seminar"
-        className="w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-10 md:py-20 px-4 md:px-20"
+        className="w-full min-h-[80vh] md:min-h-screen relative flex flex-col py-8 md:py-12 lg:py-20 px-4 md:px-8 lg:px-20"
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-[44%] left-1/2 -translate-x-1/2 w-40 h-40 md:w-96 md:h-96 bg-neutral_01/10 rounded-full blur-3xl"></div>
@@ -408,14 +404,14 @@ const InfestWebsite = () => {
 
         <div className="absolute inset-0 bg-gradient-radial from-neutral_01/10 via-transparent to-transparent"></div>
 
-        <div className="relative z-10 flex flex-col items-center gap-8 md:gap-16">
+        <div className="relative z-10 flex flex-col items-center gap-6 md:gap-12 lg:gap-16">
           <div className="text-center" data-aos="fade-up" data-aos-delay="200">
             <h2
-              className={`text-3xl md:text-5xl lg:text-8xl font-bold text-neutral_01 mb-2 md:mb-4 ${dm_serif_display.className}`}
+              className={`text-3xl md:text-6xl lg:text-8xl font-bold text-neutral_01 mb-2 md:mb-4 ${dm_serif_display.className}`}
             >
               National Seminar
             </h2>
-            <p className="text-base md:text-xl text-neutral_01/80 max-w-2xl mx-auto">
+            <p className="text-sm md:text-lg lg:text-xl text-neutral_01/80 max-w-2xl mx-auto">
               A series of seminars and workshops will be held to provide
               knowledge and insights into the latest trends and developments in
               the field of informatics.
@@ -427,10 +423,10 @@ const InfestWebsite = () => {
             data-aos="fade-up"
             data-aos-delay="400"
           >
-            <span className="inline-block px-4 py-1 rounded-full bg-brand_01/80 text-neutral_01 text-xs md:text-sm font-semibold tracking-wide shadow-lg mb-2">
+            <span className="inline-block px-3 md:px-4 py-1 rounded-full bg-brand_01/80 text-neutral_01 text-xs md:text-sm font-semibold tracking-wide shadow-lg mb-2">
               Mystery Speaker
             </span>
-            <div className="relative w-36 h-36 md:w-56 md:h-56 flex items-center justify-center">
+            <div className="relative w-32 h-32 md:w-48 md:h-48 lg:w-56 lg:h-56 flex items-center justify-center">
               <Image
                 src="/assets/images/man-1.png"
                 alt="Mystery Speaker Silhouette"
@@ -440,7 +436,7 @@ const InfestWebsite = () => {
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span
-                  className="text-5xl md:text-[6rem] lg:text-[8rem] font-bold text-brand_01 drop-shadow-lg animate-pulse text-glow"
+                  className="text-4xl md:text-[5rem] lg:text-[6rem] xl:text-[8rem] font-bold text-brand_01 drop-shadow-lg animate-pulse text-glow"
                   style={{ zIndex: 2 }}
                 >
                   ?
@@ -449,7 +445,7 @@ const InfestWebsite = () => {
               <div className="absolute inset-0 rounded-full bg-gradient-to-t from-brand_01/10 to-transparent"></div>
             </div>
             <p
-              className="text-base md:text-lg text-center max-w-xl text-neutral_01/90 mt-2"
+              className="text-sm md:text-base lg:text-lg text-center max-w-xl text-neutral_01/90 mt-2"
               data-aos="fade-up"
             >
               Who will be the keynote speaker at INFEST XI National Seminar this
@@ -459,15 +455,15 @@ const InfestWebsite = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 justify-center items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 lg:gap-6 justify-center items-center">
             <div
-              className="w-full md:h-40"
+              className="w-full md:h-36 lg:h-40"
               data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
             >
-              <Glass className="flex flex-col items-center justify-center h-full">
-                <span className="text-2xl md:text-4xl">🎤</span>
+              <Glass className="flex flex-col items-center justify-center h-full p-4">
+                <span className="text-xl md:text-2xl lg:text-4xl">🎤</span>
                 <p
-                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                  className={`font-semibold text-base md:text-lg lg:text-2xl ${dm_serif_display.className}`}
                 >
                   Latest Topics
                 </p>
@@ -478,14 +474,14 @@ const InfestWebsite = () => {
               </Glass>
             </div>
             <div
-              className="w-full md:h-40"
+              className="w-full md:h-36 lg:h-40"
               data-aos={`${isMobile ? "fade-right" : "fade-up"}`}
               data-aos-delay="100"
             >
-              <Glass className="flex flex-col items-center justify-center h-full">
-                <span className="text-2xl md:text-4xl">🤝</span>
+              <Glass className="flex flex-col items-center justify-center h-full p-4">
+                <span className="text-xl md:text-2xl lg:text-4xl">🤝</span>
                 <p
-                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                  className={`font-semibold text-base md:text-lg lg:text-2xl ${dm_serif_display.className}`}
                 >
                   Networking
                 </p>
@@ -496,14 +492,14 @@ const InfestWebsite = () => {
               </Glass>
             </div>
             <div
-              className="w-full md:h-40"
+              className="w-full md:h-36 lg:h-40"
               data-aos={`${isMobile ? "fade-left" : "fade-up"}`}
               data-aos-delay="200"
             >
-              <Glass className="flex flex-col items-center justify-center h-full">
-                <span className="text-2xl md:text-4xl">📜</span>
+              <Glass className="flex flex-col items-center justify-center h-full p-4">
+                <span className="text-xl md:text-2xl lg:text-4xl">📜</span>
                 <p
-                  className={`font-semibold text-lg md:text-2xl ${dm_serif_display.className}`}
+                  className={`font-semibold text-base md:text-lg lg:text-2xl ${dm_serif_display.className}`}
                 >
                   E-Certificate
                 </p>
@@ -516,13 +512,13 @@ const InfestWebsite = () => {
           </div>
 
           <div
-            className="mt-4 md:mt-8 flex justify-center"
+            className="mt-4 md:mt-6 lg:mt-8 flex justify-center"
             data-aos="fade-up"
             data-aos-delay="800"
           >
             <a
               href="#"
-              className="px-6 md:px-8 py-2 md:py-3 rounded-full bg-gradient-to-r from-brand_01 to-neutral_02 text-neutral_01 font-bold shadow-lg hover:scale-105 transition-transform duration-200 border border-neutral_01/30 text-base md:text-lg"
+              className="px-5 md:px-6 lg:px-8 py-2 md:py-2.5 lg:py-3 rounded-full bg-gradient-to-r from-brand_01 to-neutral_02 text-neutral_01 font-bold shadow-lg hover:scale-105 transition-transform duration-200 border border-neutral_01/30 text-sm md:text-base lg:text-lg"
             >
               Get the Latest Updates
             </a>
