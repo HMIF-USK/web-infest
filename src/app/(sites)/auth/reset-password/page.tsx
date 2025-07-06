@@ -2,6 +2,8 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { supabase } from "@/libs/services/supabaseClient";
+import { authService } from "@/libs/services/authService";
+import { validatePassword, sanitizeInput } from "@/libs/security/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -52,7 +54,7 @@ const GlassInput = ({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50"
+          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-xs md:text-sm"
         />
         {showPasswordToggle && (
           <button
@@ -154,13 +156,9 @@ function ResetPasswordContent() {
   const validateForm = () => {
     const newErrors = { password: "", confirmPassword: "", general: "" };
 
-    if (!formData.password) {
-      newErrors.password = "Password baru harus diisi";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password minimal 6 karakter";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password =
-        "Password harus mengandung huruf besar, huruf kecil, dan angka";
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      newErrors.password = passwordValidation.error || "Password tidak valid";
     }
 
     if (!formData.confirmPassword) {
@@ -206,16 +204,14 @@ function ResetPasswordContent() {
         return;
       }
 
-      // Update the password
-      const { error } = await supabase.auth.updateUser({
-        password: formData.password,
-      });
+      // Use authService to update password
+      const result = await authService.resetPassword(formData.password);
 
-      if (error) {
-        console.error("Update password error:", error);
+      if (result.error) {
+        console.error("Update password error:", result.error);
         setErrors((prev) => ({
           ...prev,
-          general: "Gagal mengupdate password. Silakan coba lagi.",
+          general: result.error || "Gagal mengupdate password. Silakan coba lagi.",
         }));
         setIsUpdating(false);
         return;
@@ -324,7 +320,7 @@ function ResetPasswordContent() {
             }}
           />
         </div>
-      </div>      
+      </div>
 
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-md">
@@ -360,7 +356,7 @@ function ResetPasswordContent() {
           )}
 
           {/* Reset Form */}
-          <form onSubmit={handleResetPassword} className="space-y-4">
+          <form onSubmit={handleResetPassword} className="flex flex-col">
             <GlassInput
               type={showPassword ? "text" : "password"}
               placeholder="Password Baru"
@@ -390,7 +386,7 @@ function ResetPasswordContent() {
             <button
               type="submit"
               disabled={isUpdating}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-2xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 mt-1 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-xs md:text-sm rounded-2xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isUpdating ? (
                 <>
@@ -417,15 +413,15 @@ function ResetPasswordContent() {
           </div>
         </GlassContainer>
 
-        {/* Decorative Elements */}
-        <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
-        <div className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
-        <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
-        <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
+        {/* Decorative Elements - Hidden on mobile for cleaner look */}
+        <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl hidden md:block"></div>
+        <div className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl hidden md:block"></div>
+        <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl hidden md:block"></div>
+        <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl hidden md:block"></div>
       </div>
 
       {/* Bottom Info */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center block lg:hidden">
         <p className="text-neutral_01/60 text-sm">
           Informatics Festival XI 2025
         </p>
