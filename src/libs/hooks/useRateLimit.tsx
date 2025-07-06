@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { logSecurityEvent } from "../security/utils";
-import SECURITY_CONFIG from "../security/constants";
+import { SECURITY_CONFIG } from "../security/constants";
 
 // Rate limiting untuk mencegah brute force attacks
 const useRateLimit = () => {

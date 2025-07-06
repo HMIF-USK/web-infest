@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { supabase } from "@/libs/services/supabaseClient";
+import { authService } from "@/libs/services/authService";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import Image from "next/image";
@@ -57,7 +58,7 @@ const GlassInput = ({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-sm"
+          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-xs md:text-sm"
         />
         {showPasswordToggle && (
           <button
@@ -201,6 +202,18 @@ function LoginPageContent() {
     if (error) {
       let errorMessage = "";
       switch (error) {
+        case "oauth":
+          errorMessage = "Login Google gagal. Silakan coba lagi.";
+          break;
+        case "oauth_token":
+          errorMessage = "Token Google tidak valid. Silakan coba login ulang.";
+          break;
+        case "oauth_session":
+          errorMessage = "Gagal membuat session Google. Silakan coba lagi.";
+          break;
+        case "oauth_profile":
+          errorMessage = "Login berhasil, namun gagal membuat profil. Anda dapat melengkapi profil di dashboard.";
+          break;
         case "oauth_failed":
           errorMessage = details
             ? `Login Google gagal: ${details}`
@@ -261,13 +274,6 @@ function LoginPageContent() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Log login attempt
-    logSecurityEvent({
-      type: 'login_attempt',
-      identifier: formData.email.trim().toLowerCase(),
-      details: { method: 'email' }
-    });
-    
     // Check rate limiting
     if (rateLimit.isLocked) {
       setErrors(prev => ({ 
@@ -285,56 +291,70 @@ function LoginPageContent() {
       
       const sanitizedEmail = sanitizeInput(formData.email).toLowerCase();
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: sanitizedEmail,
-        password: formData.password,
-      });
+      // Gunakan authService untuk login dengan database integration
+      const result = await authService.signIn(sanitizedEmail, formData.password);
 
-      if (error) {
-        console.error("Login error:", error);
+      if (result.error) {
+        console.error("Login error:", result.error);
         
         // Record failed attempt
         rateLimit.recordFailedAttempt();
         
-        // Handle specific error cases for better UX
-        if (error.message.includes('Invalid login credentials')) {
+        // Handle specific error cases untuk better UX
+        if (result.error.includes('Email atau password salah')) {
           setErrors(prev => ({ 
             ...prev, 
             general: `Email atau password salah. Percobaan ke-${rateLimit.attempts + 1} dari ${SECURITY_CONFIG.MAX_LOGIN_ATTEMPTS}.` 
           }));
-        } else if (error.message.includes('Email not confirmed')) {
-          setErrors(prev => ({ ...prev, general: 'Email belum diverifikasi. Silakan cek email Anda untuk konfirmasi.' }));
-        } else if (error.message.includes('Too many requests')) {
-          setErrors(prev => ({ ...prev, general: 'Terlalu banyak percobaan login. Silakan tunggu beberapa menit.' }));
+        } else if (result.error.includes('Email belum diverifikasi')) {
+          setErrors(prev => ({ 
+            ...prev, 
+            general: 'Email belum diverifikasi. Silakan cek email Anda untuk konfirmasi.' 
+          }));
+        } else if (result.error.includes('Too many')) {
+          setErrors(prev => ({ 
+            ...prev, 
+            general: 'Terlalu banyak percobaan login. Silakan tunggu beberapa menit.' 
+          }));
         } else {
-          setErrors(prev => ({ ...prev, general: error.message }));
+          setErrors(prev => ({ 
+            ...prev, 
+            general: result.error || 'Terjadi kesalahan sistem. Silakan coba lagi.' 
+          }));
         }
-        setIsLoggingIn(false);
         return;
       }
 
-      if (data.user) {
-        console.log("Login berhasil");
+      if (result.user) {
+        console.log("Login berhasil", { 
+          userId: result.user.id, 
+          email: result.user.email,
+          hasProfile: !!result.profile 
+        });
+        
         // Reset attempts on successful login
         rateLimit.resetAttempts();
-        router.replace("/dashboard");
+        
+        // Jika belum ada profile, user tetap bisa masuk tapi akan diarahkan untuk melengkapi profil
+        if (!result.profile) {
+          console.warn("User login tanpa profile, akan diarahkan untuk melengkapi profil");
+        }
+        
+        router.push("/dashboard");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
       rateLimit.recordFailedAttempt();
-      setErrors(prev => ({ ...prev, general: 'Terjadi kesalahan sistem. Silakan coba lagi.' }));
+      setErrors(prev => ({ 
+        ...prev, 
+        general: 'Terjadi kesalahan sistem. Silakan coba lagi.' 
+      }));
+    } finally {
       setIsLoggingIn(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    // Log login attempt
-    logSecurityEvent({
-      type: 'login_attempt',
-      identifier: 'google_oauth',
-      details: { method: 'google' }
-    });
-
     // Check rate limiting
     if (rateLimit.isLocked) {
       setErrors(prev => ({ 
@@ -348,30 +368,22 @@ function LoginPageContent() {
       setIsLoggingIn(true);
       setErrors({ email: "", password: "", general: "" });
       
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        },
-      });
+      // Gunakan authService untuk OAuth login
+      const result = await authService.signInWithOAuth('google');
       
-      if (error) {
-        console.error("Google login error:", error);
+      if (result.error) {
+        console.error("Google login error:", result.error);
         rateLimit.recordFailedAttempt();
         setErrors((prev) => ({
           ...prev,
-          general: `Gagal login dengan Google: ${error.message}`,
+          general: `Gagal login dengan Google: ${result.error}`,
         }));
         setIsLoggingIn(false);
-      } else if (data.url) {
+      } else if (result.url) {
         // Redirect ke OAuth provider
-        window.location.href = data.url;
+        window.location.href = result.url;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("💥 Google login failed:", error);
       rateLimit.recordFailedAttempt();
       setErrors((prev) => ({
@@ -534,12 +546,12 @@ function LoginPageContent() {
                   <button
                     type="submit"
                     disabled={isLoggingIn || !!rateLimit.isLocked}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 mt-1 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-sm md:text-base rounded-xl shadow-[0_0px_20px_rgba(242,233,197,0.4)] md:shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_30px_rgba(242,233,197,0.6)] md:hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-[1.02] md:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 mt-1 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-xs md:text-sm rounded-xl shadow-[0_0px_20px_rgba(242,233,197,0.4)] md:shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_30px_rgba(242,233,197,0.6)] md:hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     {rateLimit.isLocked ? (
                       <>
                         <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
-                        <span className="text-xs md:text-sm">Terkunci ({Math.ceil(rateLimit.remainingTime / 60)} menit)</span>
+                        <span>Terkunci ({Math.ceil(rateLimit.remainingTime / 60)} menit)</span>
                       </>
                     ) : isLoggingIn ? (
                       <>
@@ -547,12 +559,12 @@ function LoginPageContent() {
                           <div className="absolute inset-0 rounded-full border-2 border-brand_01/30"></div>
                           <div className="absolute inset-0 rounded-full border-2 border-brand_01 border-t-transparent animate-spin"></div>
                         </div>
-                        <span className="text-xs md:text-sm">Sedang Masuk...</span>
+                        <span>Sedang Masuk...</span>
                       </>
                     ) : (
                       <>
                         <LogIn className="w-4 h-4 md:w-5 md:h-5" />
-                        <span className="text-xs md:text-sm">Masuk dengan Email</span>
+                        <span>Masuk dengan Email</span>
                       </>
                     )}
                   </button>
@@ -565,12 +577,12 @@ function LoginPageContent() {
                 <button
                   onClick={handleGoogleLogin}
                   disabled={isLoggingIn || !!rateLimit.isLocked}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/10 border border-neutral_01/20 text-neutral_01 font-bold text-sm md:text-base rounded-xl hover:bg-white/15 hover:scale-[1.02] md:hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/10 border border-neutral_01/20 text-neutral_01 font-bold text-xs md:text-sm rounded-xl hover:bg-white/15 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                 >
                   {rateLimit.isLocked ? (
                     <>
                       <AlertCircle className="w-4 h-4 md:w-5 md:h-5" />
-                      <span className="text-xs md:text-sm">Terkunci ({Math.ceil(rateLimit.remainingTime / 60)} menit)</span>
+                      <span>Terkunci ({Math.ceil(rateLimit.remainingTime / 60)} menit)</span>
                     </>
                   ) : isLoggingIn ? (
                     <>
@@ -578,7 +590,7 @@ function LoginPageContent() {
                         <div className="absolute inset-0 rounded-full border-2 border-neutral_01/30"></div>
                         <div className="absolute inset-0 rounded-full border-2 border-neutral_01 border-t-transparent animate-spin"></div>
                       </div>
-                      <span className="text-xs md:text-sm">Sedang Masuk...</span>
+                      <span>Sedang Masuk...</span>
                     </>
                   ) : (
                     <>
@@ -600,7 +612,7 @@ function LoginPageContent() {
                           d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         />
                       </svg>
-                      <span className="text-xs md:text-sm">Masuk dengan Google</span>
+                      <span>Masuk dengan Google</span>
                     </>
                   )}
                 </button>
@@ -650,12 +662,20 @@ function LoginPageContent() {
             </div>
           </div>
         </GlassContainer>
-
+a
         {/* Decorative Elements - Hidden on mobile for cleaner look */}
         <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl hidden md:block"></div>
         <div className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl hidden md:block"></div>
         <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl hidden md:block"></div>
         <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl hidden md:block"></div>
+      </div>
+
+      {/* Bottom Info */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center block lg:hidden">
+        <p className="text-neutral_01/60 text-sm">
+          Informatics Festival XI 2025
+        </p>
+        <p className="text-neutral_01/40 text-xs mt-1">Powered by HMIF USK</p>
       </div>
     </div>
   );

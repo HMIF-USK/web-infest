@@ -5,11 +5,16 @@ import React from "react";
 import Link from "next/link";
 import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
 import { socialAccounts } from "@/data/socialAccount";
+import { usePathname } from "next/navigation";
+import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
 
 
 const FooterDekstop = () => {
+  const pathname = usePathname();
+  const { isDesktop } = useScreenSize();
+  if (!isDesktop) return null; // Only render on desktop
   return (
-    <div className="bg-brand_02 w-full flex justify-between px-8 md:px-12 py-8 text-neutral_01 relative">
+    <div className={`bg-brand_02 w-full flex justify-between px-8 md:px-12 py-8 text-neutral_01 relative ${pathname === "/dashboard" && 'ml-72'}`}>
       <div className="absolute w-2/3 h-[1px] top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
       <div className="flex flex-col justify-end text-sm w-1/3">
         <p className="font-bold text-base uppercase tracking-wide">Address</p>

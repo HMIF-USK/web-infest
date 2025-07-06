@@ -41,10 +41,10 @@ export default function RootLayout({
       >
         <Header />
         {children}
-        <div className="flex md:hidden w-full">
+        <div className="flex w-full">
           <FooterMobile />
         </div>
-        <div className="hidden md:flex w-full">
+        <div className="flex w-full">
           <FooterDekstop />
         </div>
       </body>

@@ -48,4 +48,7 @@ export const SQL_INJECTION_PATTERNS = [
   /([';]|\b(OR|AND)\b.*[=<>])/gi
 ];
 
-export default SECURITY_CONFIG;
+export const TEAM_REQUIREMENTS = {
+  MAX_MEMBERS: 3, // Maksimal anggota tim
+  MIN_MEMBERS: 1, // Minimal anggota tim untuk membuat tim
+}

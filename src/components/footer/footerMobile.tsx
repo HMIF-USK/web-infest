@@ -5,12 +5,16 @@ import React from "react";
 import Link from "next/link";
 import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
 import { socialAccounts } from "@/data/socialAccount";
+import { usePathname } from "next/navigation";
+import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
 
 
 const FooterMobile = () => {
+  const { isDesktop } = useScreenSize();
+  if (isDesktop) return null;
   return (
-    <div className="bg-brand_02 w-full flex flex-col px-6 py-8 gap-4 text-neutral_01 items-center relative">
-      <div className="absolute w-1/2 top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
+    <div className={`bg-brand_02 w-full flex flex-col px-6 py-8 gap-4 text-neutral_01 items-center relative`}>
+      <div className="absolute w-1/2 h-[1px] top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-transparent via-neutral_01/50 to-transparent"></div>
       <button onClick={() => scrollIntoSection("hero")} className="duration-200 hover:scale-110">
         <Image
           src={"/assets/images/Infest 2025 1st Logo Outline.png"}

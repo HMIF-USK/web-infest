@@ -1,21 +1,22 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { supabase } from "@/libs/services/supabaseClient";
+import { Suspense, useEffect, useState } from "react";
+import { authService } from "@/libs/services/authService";
+import { validateEmail, sanitizeInput } from "@/libs/security/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
 import { ArrowLeft, Mail, AlertCircle, CheckCircle, Send } from "lucide-react";
 
 // Input Component with glass effect
-const GlassInput = ({ 
-  type = "text", 
-  placeholder, 
-  value, 
-  onChange, 
-  icon: Icon, 
+const GlassInput = ({
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  icon: Icon,
   error,
-  disabled = false
+  disabled = false,
 }: {
   type?: string;
   placeholder: string;
@@ -27,7 +28,11 @@ const GlassInput = ({
 }) => (
   <div className="relative mb-4">
     <div className="relative">
-      <div className={`flex items-center w-full px-4 py-3 bg-neutral_01/10 backdrop-blur-md border ${error ? 'border-red-400/50' : 'border-neutral_01/20'} rounded-xl transition-all duration-300 focus-within:border-neutral_02/50 focus-within:bg-neutral_01/15`}>
+      <div
+        className={`flex items-center w-full px-4 py-3 bg-neutral_01/10 backdrop-blur-md border ${
+          error ? "border-red-400/50" : "border-neutral_01/20"
+        } rounded-xl transition-all duration-300 focus-within:border-neutral_02/50 focus-within:bg-neutral_01/15`}
+      >
         {Icon && <Icon className="w-5 h-5 text-neutral_01/60 mr-3" />}
         <input
           type={type}
@@ -35,7 +40,7 @@ const GlassInput = ({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-sm"
+          className="flex-1 bg-transparent text-neutral_01 placeholder-neutral_01/60 outline-none disabled:opacity-50 text-xs md:text-sm"
         />
       </div>
     </div>
@@ -49,7 +54,13 @@ const GlassInput = ({
 );
 
 // Glass Effect Component
-const GlassContainer = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => (
+const GlassContainer = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => (
   <div className={`glass-container glass-container--rounded ${className}`}>
     <div className="glass-filter" />
     <div className="glass-specular" />
@@ -60,11 +71,7 @@ const GlassContainer = ({ children, className = "" }: { children: React.ReactNod
 );
 
 // Glowing Orb Effect
-const GlowingOrb = ({
-  size = 100,
-  color = "brand_01",
-  delay = 0,
-}) => (
+const GlowingOrb = ({ size = 100, color = "brand_01", delay = 0 }) => (
   <div
     className={`absolute rounded-full blur-3xl animate-pulse`}
     style={{
@@ -84,37 +91,32 @@ const GlowingOrb = ({
 function ForgotPasswordContent() {
   const [isSending, setIsSending] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
-      setError('Email harus diisi');
+      setError("Email harus diisi");
       return;
     }
-    
-    if (!validateEmail(email)) {
-      setError('Format email tidak valid');
+
+    if (!validateEmail(email).isValid) {
+      setError("Format email tidak valid");
       return;
     }
-    
+
     try {
       setIsSending(true);
-      setError('');
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
-      });
+      setError("");
 
-      if (error) {
-        console.error("Reset password error:", error);
-        setError('Gagal mengirim email reset password. Silakan coba lagi.');
+      const sanitizedEmail = sanitizeInput(email).toLowerCase();
+      const result = await authService.forgotPassword(sanitizedEmail);
+
+      if (result.error) {
+        console.error("Reset password error:", result.error);
+        setError(result.error);
         setIsSending(false);
         return;
       }
@@ -122,7 +124,7 @@ function ForgotPasswordContent() {
       setEmailSent(true);
     } catch (error) {
       console.error("Reset password failed:", error);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
+      setError("Terjadi kesalahan. Silakan coba lagi.");
       setIsSending(false);
     }
   };
@@ -130,13 +132,15 @@ function ForgotPasswordContent() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
     if (error) {
-      setError('');
+      setError("");
     }
   };
 
   if (emailSent) {
     return (
-      <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}
+      >
         <div className="absolute inset-0 overflow-hidden">
           <GlowingOrb size={400} color="brand_01" delay={0} />
           <GlowingOrb size={300} color="neutral_01" delay={2} />
@@ -148,21 +152,17 @@ function ForgotPasswordContent() {
             <div className="w-20 h-20 mx-auto mb-6 bg-green-500/20 rounded-full flex items-center justify-center">
               <CheckCircle className="w-12 h-12 text-green-400" />
             </div>
-            
-            <h1 className={`text-2xl font-bold text-neutral_01 mb-4 ${dm_serif_display.className}`}>
+
+            <h1
+              className={`text-2xl font-bold text-neutral_01 mb-4 ${dm_serif_display.className}`}
+            >
               Email Terkirim!
             </h1>
-            
+
             <div className="space-y-4 text-neutral_01/80">
-              <p>
-                Kami telah mengirim link reset password ke email Anda:
-              </p>
-              <p className="font-medium text-neutral_02">
-                {email}
-              </p>
-              <p className="text-sm">
-                Silakan cek inbox dan folder spam Anda.
-              </p>
+              <p>Kami telah mengirim link reset password ke email Anda:</p>
+              <p className="font-medium text-neutral_02">{email}</p>
+              <p className="text-sm">Silakan cek inbox dan folder spam Anda.</p>
             </div>
 
             <div className="flex flex-col gap-3 mt-6">
@@ -172,11 +172,12 @@ function ForgotPasswordContent() {
               >
                 Kembali ke Login
               </Link>
-              
+
               <button
                 onClick={() => {
                   setEmailSent(false);
-                  setEmail('');
+                  setIsSending(false);
+                  setEmail("");
                 }}
                 className="text-neutral_01/60 hover:text-neutral_01 text-sm transition-colors"
               >
@@ -190,13 +191,15 @@ function ForgotPasswordContent() {
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}>
+    <div
+      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-brand_01 to-brand_02 p-4 relative overflow-hidden ${montserrat.className}`}
+    >
       {/* Background Effects */}
       <div className="absolute inset-0 overflow-hidden">
         <GlowingOrb size={400} color="brand_01" delay={0} />
         <GlowingOrb size={300} color="neutral_01" delay={2} />
         <GlowingOrb size={200} color="brand_01" delay={4} />
-        
+
         {/* Floating particles */}
         <div className="absolute top-20 left-20 w-2 h-2 bg-neutral_01/60 rounded-full animate-twinkle"></div>
         <div className="absolute top-40 right-32 w-1 h-1 bg-neutral_02/80 rounded-full animate-twinkle-delayed"></div>
@@ -213,12 +216,14 @@ function ForgotPasswordContent() {
             fill
             className="object-cover"
             style={{
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)'
+              maskImage:
+                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%)",
             }}
           />
         </div>
-      </div>    
+      </div>
 
       {/* Main Container */}
       <div className="relative z-10 w-full max-w-md">
@@ -234,7 +239,9 @@ function ForgotPasswordContent() {
               />
             </div>
             <div className="text-center">
-              <h1 className={`text-2xl font-bold text-neutral_01 mb-2 ${dm_serif_display.className}`}>
+              <h1
+                className={`text-2xl font-bold text-neutral_01 mb-2 ${dm_serif_display.className}`}
+              >
                 Lupa Password?
               </h1>
               <p className="text-neutral_01/80 text-sm">
@@ -266,7 +273,7 @@ function ForgotPasswordContent() {
             <button
               type="submit"
               disabled={isSending}
-              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-lg rounded-xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-bold text-xs md:text-sm rounded-xl shadow-[0_0px_30px_rgba(242,233,197,0.6)] hover:shadow-[0_0px_40px_rgba(242,233,197,0.8)] hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isSending ? (
                 <>
@@ -279,7 +286,7 @@ function ForgotPasswordContent() {
               ) : (
                 <>
                   <Send className="w-6 h-6" />
-                  <span className="text-sm">Kirim Link Reset</span>
+                  <span>Kirim Link Reset</span>
                 </>
               )}
             </button>
@@ -288,26 +295,25 @@ function ForgotPasswordContent() {
           {/* Additional Info */}
           <div className="mt-8 text-center">
             <p className="text-neutral_01/60 text-xs leading-relaxed">
-              Setelah menerima email, ikuti instruksi untuk membuat password baru.
+              Setelah menerima email, ikuti instruksi untuk membuat password
+              baru.
             </p>
           </div>
         </GlassContainer>
 
-        {/* Decorative Elements */}
-        <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl"></div>
-        <div className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl"></div>
-        <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl"></div>
-        <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl"></div>
+        {/* Decorative Elements - Hidden on mobile for cleaner look */}
+        <div className="absolute -top-4 -left-4 w-8 h-8 border-l-2 border-t-2 border-neutral_01/30 rounded-tl-xl hidden md:block"></div>
+        <div className="absolute -top-4 -right-4 w-8 h-8 border-r-2 border-t-2 border-neutral_01/30 rounded-tr-xl hidden md:block"></div>
+        <div className="absolute -bottom-4 -left-4 w-8 h-8 border-l-2 border-b-2 border-neutral_01/30 rounded-bl-xl hidden md:block"></div>
+        <div className="absolute -bottom-4 -right-4 w-8 h-8 border-r-2 border-b-2 border-neutral_01/30 rounded-br-xl hidden md:block"></div>
       </div>
 
       {/* Bottom Info */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center block lg:hidden">
         <p className="text-neutral_01/60 text-sm">
           Informatics Festival XI 2025
         </p>
-        <p className="text-neutral_01/40 text-xs mt-1">
-          Powered by HMIF USK
-        </p>
+        <p className="text-neutral_01/40 text-xs mt-1">Powered by HMIF USK</p>
       </div>
     </div>
   );

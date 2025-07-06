@@ -25,6 +25,7 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
 
         if (!session) {
           // User belum login, redirect ke halaman login
+          console.log("No active session, redirecting to login");
           router.replace("/auth/login");
           return;
         }
