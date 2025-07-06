@@ -371,6 +371,7 @@ export const authService = {
   async getCurrentUser(): Promise<AuthResult> {
     try {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
+      console.log('Current user:', user);
 
       if (authError || !user) {
         return { 

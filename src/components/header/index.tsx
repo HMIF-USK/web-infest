@@ -40,7 +40,8 @@ export const Header = () => {
 
   useEffect(() => {
     const userCheck = async () => {
-      const user = await authService.getCurrentUser();
+      const { user } = await authService.getCurrentUser();
+      console.log("Current user:", user);
       setIsUserAuthenticated(!!user);
     };
     userCheck();
