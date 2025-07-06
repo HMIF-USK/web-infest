@@ -103,7 +103,7 @@ export const Sidebar = () => {
         <div className="flex flex-col h-full p-4 sm:p-6">
           {/* Header */}
           <div className="mb-6 sm:mb-8 pt-16 lg:pt-0">
-            <div className="flex items-center gap-3 mb-2">
+            <Link href="/" className="flex items-center gap-3 mb-2">
               <Image
                 src={'/assets/images/Infest 2025 1st Logo Outline.png'}
                 alt="Infest 2025 Logo"
@@ -115,7 +115,7 @@ export const Sidebar = () => {
                 <h2 className="text-lg sm:text-xl font-bold text-neutral_01">Dashboard</h2>
                 <p className="text-xs sm:text-sm text-neutral_01/60">Infest 2025</p>
               </div>
-            </div>
+            </Link>
           </div>
 
           {/* Navigation Menu */}

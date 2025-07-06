@@ -2,8 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authService, type UserProfile, type AuthResult } from "@/libs/services/authService";
-import { competitionService, type Competition, type CompetitionRegistration } from "@/libs/services/competitionService";
+import {
+  authService,
+  type UserProfile,
+  type AuthResult,
+} from "@/libs/services/authService";
+import {
+  competitionService,
+  type Competition,
+  type CompetitionRegistration,
+} from "@/libs/services/competitionService";
 import { teamService, type TeamWithMembers } from "@/libs/services/teamService";
 import { validateEmail, sanitizeInput } from "@/libs/security/utils";
 import type { User } from "@supabase/supabase-js";
@@ -40,8 +48,72 @@ import {
   Plus,
   Crown,
   UserMinus,
-  EyeOff
+  EyeOff,
+  Info,
 } from "lucide-react";
+import { TEAM_REQUIREMENTS } from "@/libs/security/constants";
+
+// Helper function to check if profile is complete
+const isProfileComplete = (profile: UserProfile | null): boolean => {
+  if (!profile) return false;
+
+  const requiredFields = [
+    "full_name",
+    "email",
+    "whatsapp",
+    "date_of_birth",
+    "gender",
+    "university",
+    "faculty",
+    "major",
+    "student_id",
+    "semester",
+    "graduation_year",
+    "province",
+    "city",
+    "address",
+    "postal_code",
+  ];
+
+  return requiredFields.every((field) => {
+    const value = profile[field as keyof UserProfile];
+    return value !== null && value !== undefined && String(value).trim() !== "";
+  });
+};
+
+// Helper function to get missing profile fields
+const getMissingProfileFields = (profile: UserProfile | null): string[] => {
+  if (!profile) return ["Semua field profil"];
+
+  const fieldLabels: Record<string, string> = {
+    full_name: "Nama Lengkap",
+    email: "Email",
+    whatsapp: "WhatsApp",
+    date_of_birth: "Tanggal Lahir",
+    gender: "Jenis Kelamin",
+    university: "Universitas",
+    faculty: "Fakultas",
+    major: "Jurusan",
+    student_id: "NIM",
+    semester: "Semester",
+    graduation_year: "Tahun Angkatan",
+    province: "Provinsi",
+    city: "Kota",
+    address: "Alamat",
+    postal_code: "Kode Pos",
+  };
+
+  const missingFields: string[] = [];
+
+  Object.entries(fieldLabels).forEach(([field, label]) => {
+    const value = profile[field as keyof UserProfile];
+    if (value === null || value === undefined || String(value).trim() === "") {
+      missingFields.push(label);
+    }
+  });
+
+  return missingFields;
+};
 
 // Components for each menu
 const ProfilContent = () => {
@@ -51,14 +123,16 @@ const ProfilContent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [saveMessage, setSaveMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
     // Data Dasar
     fullName: "",
     email: "",
-    phone: "",
     whatsapp: "",
     dateOfBirth: "",
     gender: "",
@@ -87,24 +161,23 @@ const ProfilContent = () => {
     try {
       setIsLoading(true);
       const result = await authService.getCurrentUser();
-      
+
       if (result.error) {
-        console.error('Error loading user:', result.error);
+        console.error("Error loading user:", result.error);
         // Jika user tidak terautentikasi, redirect ke login
-        router.push('/auth/login');
+        router.push("/auth/login");
         return;
       }
 
       if (result.user) {
         setUser(result.user);
-        
+
         if (result.profile) {
           setProfile(result.profile);
           // Populate form dengan data profile yang ada
           setFormData({
             fullName: result.profile.full_name || "",
             email: result.profile.email || "",
-            phone: result.profile.phone || "",
             whatsapp: result.profile.whatsapp || "",
             dateOfBirth: result.profile.date_of_birth || "",
             gender: result.profile.gender || "",
@@ -121,15 +194,15 @@ const ProfilContent = () => {
           });
         } else {
           // Jika belum ada profile, set email dari auth user
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            email: result.user?.email || ""
+            email: result.user?.email || "",
           }));
         }
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
-      router.push('/auth/login');
+      console.error("Error loading user data:", error);
+      router.push("/auth/login");
     } finally {
       setIsLoading(false);
     }
@@ -152,16 +225,17 @@ const ProfilContent = () => {
       newErrors.email = emailValidation.error || "Email tidak valid";
     }
 
-    // Validasi optional fields dengan format
-    if (formData.phone && !/^(\+62|62|0)[0-9]{9,13}$/.test(formData.phone.replace(/\s/g, ''))) {
-      newErrors.phone = "Format nomor telepon tidak valid";
-    }
-
-    if (formData.whatsapp && !/^(\+62|62|0)[0-9]{9,13}$/.test(formData.whatsapp.replace(/\s/g, ''))) {
+    if (
+      formData.whatsapp &&
+      !/^(\+62|62|0)[0-9]{9,13}$/.test(formData.whatsapp.replace(/\s/g, ""))
+    ) {
       newErrors.whatsapp = "Format nomor WhatsApp tidak valid";
     }
 
-    if (formData.semester && (parseInt(formData.semester) < 1 || parseInt(formData.semester) > 14)) {
+    if (
+      formData.semester &&
+      (parseInt(formData.semester) < 1 || parseInt(formData.semester) > 14)
+    ) {
       newErrors.semester = "Semester harus antara 1-14";
     }
 
@@ -169,7 +243,9 @@ const ProfilContent = () => {
       const year = parseInt(formData.graduationYear);
       const currentYear = new Date().getFullYear();
       if (year < 2020 || year > currentYear + 10) {
-        newErrors.graduationYear = `Tahun angkatan harus antara 2020-${currentYear + 10}`;
+        newErrors.graduationYear = `Tahun angkatan harus antara 2020-${
+          currentYear + 10
+        }`;
       }
     }
 
@@ -183,17 +259,17 @@ const ProfilContent = () => {
     >
   ) => {
     const { name, value } = e.target;
-    
+
     // Sanitize input berdasarkan jenis field
     let sanitizedValue = value;
-    if (name === 'email') {
+    if (name === "email") {
       sanitizedValue = sanitizeInput(value).toLowerCase();
-    } else if (name === 'phone' || name === 'whatsapp') {
+    } else if (name === "phone" || name === "whatsapp") {
       // Hanya angka, +, dan spasi untuk nomor telepon
-      sanitizedValue = value.replace(/[^0-9+\s]/g, '');
-    } else if (name === 'semester' || name === 'graduationYear') {
+      sanitizedValue = value.replace(/[^0-9+\s]/g, "");
+    } else if (name === "semester" || name === "graduationYear") {
       // Hanya angka untuk semester dan tahun
-      sanitizedValue = value.replace(/[^0-9]/g, '');
+      sanitizedValue = value.replace(/[^0-9]/g, "");
     } else {
       // Untuk field text lainnya, sanitize basic
       sanitizedValue = sanitizeInput(value);
@@ -206,9 +282,9 @@ const ProfilContent = () => {
 
     // Clear error untuk field yang sedang diubah
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
 
@@ -219,18 +295,19 @@ const ProfilContent = () => {
   };
 
   const handleSave = async () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
     if (!validateForm()) {
       setSaveMessage({
-        type: 'error',
-        message: 'Mohon periksa kembali data yang Anda masukkan'
+        type: "error",
+        message: "Mohon periksa kembali data yang Anda masukkan",
       });
       return;
     }
 
     if (!user) {
       setSaveMessage({
-        type: 'error',
-        message: 'User tidak ditemukan. Silakan login ulang.'
+        type: "error",
+        message: "User tidak ditemukan. Silakan login ulang.",
       });
       return;
     }
@@ -243,16 +320,17 @@ const ProfilContent = () => {
       const updateData: Partial<UserProfile> = {
         full_name: formData.fullName.trim(),
         email: formData.email.toLowerCase().trim(),
-        phone: formData.phone.trim() || null,
         whatsapp: formData.whatsapp.trim() || null,
         date_of_birth: formData.dateOfBirth || null,
-        gender: formData.gender as 'male' | 'female' || null,
+        gender: (formData.gender as "male" | "female") || null,
         university: formData.university.trim() || null,
         faculty: formData.faculty.trim() || null,
         major: formData.major.trim() || null,
         student_id: formData.studentId.trim() || null,
         semester: formData.semester ? parseInt(formData.semester) : null,
-        graduation_year: formData.graduationYear ? parseInt(formData.graduationYear) : null,
+        graduation_year: formData.graduationYear
+          ? parseInt(formData.graduationYear)
+          : null,
         province: formData.province.trim() || null,
         city: formData.city.trim() || null,
         address: formData.address.trim() || null,
@@ -262,10 +340,10 @@ const ProfilContent = () => {
       const result = await authService.updateProfile(user.id, updateData);
 
       if (result.error) {
-        console.error('Error updating profile:', result.error);
+        console.error("Error updating profile:", result.error);
         setSaveMessage({
-          type: 'error',
-          message: result.error
+          type: "error",
+          message: result.error,
         });
         return;
       }
@@ -274,8 +352,8 @@ const ProfilContent = () => {
         setProfile(result.profile);
         setIsEditing(false);
         setSaveMessage({
-          type: 'success',
-          message: 'Profil berhasil diperbarui!'
+          type: "success",
+          message: "Profil berhasil diperbarui!",
         });
 
         // Clear success message setelah 3 detik
@@ -284,13 +362,14 @@ const ProfilContent = () => {
         }, 3000);
       }
     } catch (error) {
-      console.error('Error saving profile:', error);
+      console.error("Error saving profile:", error);
       setSaveMessage({
-        type: 'error',
-        message: 'Terjadi kesalahan sistem. Silakan coba lagi.'
+        type: "error",
+        message: "Terjadi kesalahan sistem. Silakan coba lagi.",
       });
     } finally {
       setIsSaving(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -300,7 +379,6 @@ const ProfilContent = () => {
       setFormData({
         fullName: profile.full_name || "",
         email: profile.email || "",
-        phone: profile.phone || "",
         whatsapp: profile.whatsapp || "",
         dateOfBirth: profile.date_of_birth || "",
         gender: profile.gender || "",
@@ -328,7 +406,9 @@ const ProfilContent = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-8 h-8 text-neutral_02 animate-spin" />
-            <p className="text-neutral_01/60 text-sm sm:text-base">Memuat data profil...</p>
+            <p className="text-neutral_01/60 text-sm sm:text-base">
+              Memuat data profil...
+            </p>
           </div>
         </div>
       </div>
@@ -346,16 +426,22 @@ const ProfilContent = () => {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral_01">
               Profil
             </h1>
-            <p className="text-neutral_01/60 text-sm sm:text-base">Kelola informasi profil Anda</p>
+            <p className="text-neutral_01/60 text-sm sm:text-base">
+              Kelola informasi profil Anda
+            </p>
           </div>
         </div>
         <button
-          onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
-          className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 ${!isEditing ? "bg-neutral_02 hover:bg-neutral_02/80" : "bg-red-800 hover:bg-red-800/80"} border border-neutral_01/20 rounded-xl transition-colors w-fit`}
+          onClick={() => (isEditing ? handleCancel() : setIsEditing(true))}
+          className={`flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 w-full sm:w-auto justify-center ${
+            !isEditing
+              ? "bg-neutral_02 hover:bg-neutral_02/80"
+              : "bg-red-800 hover:bg-red-800/80"
+          } border border-neutral_01/20 rounded-xl transition-colors w-fit`}
         >
           {!isEditing ? (
             <Edit3 className="w-4 h-4 text-neutral_01" />
-          ) : (            
+          ) : (
             <X className="w-4 h-4 text-neutral_01" />
           )}
           <span className="text-sm font-medium text-neutral_01">
@@ -367,12 +453,14 @@ const ProfilContent = () => {
       <div className="space-y-4 sm:space-y-6">
         {/* Success/Error Message */}
         {saveMessage && (
-          <div className={`flex items-start gap-3 p-4 rounded-xl border ${
-            saveMessage.type === 'success' 
-              ? 'bg-green-500/10 border-green-400/20 text-green-400' 
-              : 'bg-red-500/10 border-red-400/20 text-red-400'
-          }`}>
-            {saveMessage.type === 'success' ? (
+          <div
+            className={`flex items-start gap-3 p-4 rounded-xl border ${
+              saveMessage.type === "success"
+                ? "bg-green-500/10 border-green-400/20 text-green-400"
+                : "bg-red-500/10 border-red-400/20 text-red-400"
+            }`}
+          >
+            {saveMessage.type === "success" ? (
               <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
             ) : (
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -400,9 +488,11 @@ const ProfilContent = () => {
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.fullName ? 'border-red-400/50' : 'border-neutral_01/20'
+                  errors.fullName ? "border-red-400/50" : "border-neutral_01/20"
                 } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.fullName ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
+                  errors.fullName
+                    ? "focus:ring-red-400/50"
+                    : "focus:ring-neutral_02/50"
                 } transition-all duration-200`}
                 placeholder="Masukkan nama lengkap"
               />
@@ -422,44 +512,15 @@ const ProfilContent = () => {
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.email ? 'border-red-400/50' : 'border-neutral_01/20'
-                } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.email ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
-                } transition-all duration-200`}
+                readOnly
+                disabled
+                className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-neutral_02/50 transition-all duration-200`}
                 placeholder="contoh@email.com"
               />
               {errors.email && (
                 <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
                   {errors.email}
-                </p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-neutral_01 mb-2">
-                <Phone className="w-4 h-4 inline mr-2" />
-                No. Telepon
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-                className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.phone ? 'border-red-400/50' : 'border-neutral_01/20'
-                } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.phone ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
-                } transition-all duration-200`}
-                placeholder="08123456789"
-              />
-              {errors.phone && (
-                <p className="text-red-400 text-xs mt-1 flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.phone}
                 </p>
               )}
             </div>
@@ -475,9 +536,11 @@ const ProfilContent = () => {
                 onChange={handleInputChange}
                 disabled={!isEditing}
                 className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.whatsapp ? 'border-red-400/50' : 'border-neutral_01/20'
+                  errors.whatsapp ? "border-red-400/50" : "border-neutral_01/20"
                 } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.whatsapp ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
+                  errors.whatsapp
+                    ? "focus:ring-red-400/50"
+                    : "focus:ring-neutral_02/50"
                 } transition-all duration-200`}
                 placeholder="08123456789"
               />
@@ -606,9 +669,11 @@ const ProfilContent = () => {
                 min="1"
                 max="14"
                 className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.semester ? 'border-red-400/50' : 'border-neutral_01/20'
+                  errors.semester ? "border-red-400/50" : "border-neutral_01/20"
                 } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.semester ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
+                  errors.semester
+                    ? "focus:ring-red-400/50"
+                    : "focus:ring-neutral_02/50"
                 } transition-all duration-200`}
                 placeholder="1-14"
               />
@@ -632,9 +697,13 @@ const ProfilContent = () => {
                 min="2020"
                 max="2030"
                 className={`w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border ${
-                  errors.graduationYear ? 'border-red-400/50' : 'border-neutral_01/20'
+                  errors.graduationYear
+                    ? "border-red-400/50"
+                    : "border-neutral_01/20"
                 } rounded-lg text-neutral_01 placeholder-neutral_01/40 disabled:opacity-50 focus:outline-none focus:ring-2 ${
-                  errors.graduationYear ? 'focus:ring-red-400/50' : 'focus:ring-neutral_02/50'
+                  errors.graduationYear
+                    ? "focus:ring-red-400/50"
+                    : "focus:ring-neutral_02/50"
                 } transition-all duration-200`}
                 placeholder="2025"
               />
@@ -715,7 +784,6 @@ const ProfilContent = () => {
           </div>
         </div>
 
-
         {/* Save Button */}
         {isEditing && (
           <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
@@ -730,7 +798,7 @@ const ProfilContent = () => {
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-semibold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 order-1 sm:order-2"
+              className="flex items-center justify-center gap-2 px-4 py-3 sm:px-6 bg-gradient-to-r from-neutral_02 to-neutral_01 text-brand_01 font-semibold rounded-xl hover:opacity-70 transition-all duration-200 disabled:opacity-50 order-1 sm:order-2"
             >
               {isSaving ? (
                 <>
@@ -753,13 +821,18 @@ const ProfilContent = () => {
 
 const KompetisiContent = () => {
   const [competitions, setCompetitions] = useState<Competition[]>([]);
-  const [userRegistrations, setUserRegistrations] = useState<CompetitionRegistration[]>([]);
+  const [userRegistrations, setUserRegistrations] = useState<
+    CompetitionRegistration[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'open' | 'closed' | 'ongoing'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filter, setFilter] = useState<"all" | "open" | "closed" | "ongoing">(
+    "all"
+  );
+  const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState<User | null>(null);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
-  const [selectedCompetition, setSelectedCompetition] = useState<Competition | null>(null);
+  const [selectedCompetition, setSelectedCompetition] =
+    useState<Competition | null>(null);
 
   useEffect(() => {
     loadData();
@@ -768,7 +841,7 @@ const KompetisiContent = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Get current user
       const userResult = await authService.getCurrentUser();
       if (userResult.user) {
@@ -776,78 +849,81 @@ const KompetisiContent = () => {
       }
 
       // Load competitions
-      const competitionsResult = await competitionService.getActiveCompetitions();
+      const competitionsResult =
+        await competitionService.getActiveCompetitions();
       if (competitionsResult.competitions) {
         setCompetitions(competitionsResult.competitions);
       }
 
       // Load user registrations if user is logged in
       if (userResult.user) {
-        const registrationsResult = await competitionService.getUserRegistrations(userResult.user.id);
+        const registrationsResult =
+          await competitionService.getUserRegistrations(userResult.user.id);
         if (registrationsResult.registrations) {
           setUserRegistrations(registrationsResult.registrations);
         }
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   // Filter and search competitions
-  const filteredCompetitions = competitions.filter(comp => {
+  const filteredCompetitions = competitions.filter((comp) => {
     const now = new Date();
     const regEnd = new Date(comp.registration_end);
     const compStart = new Date(comp.competition_start);
     const compEnd = new Date(comp.competition_end);
-    
+
     let matchesFilter = true;
-    if (filter === 'open') {
-      matchesFilter = now <= regEnd && comp.status === 'open';
-    } else if (filter === 'closed') {
+    if (filter === "open") {
+      matchesFilter = now <= regEnd && comp.status === "open";
+    } else if (filter === "closed") {
       matchesFilter = now > regEnd && now < compStart;
-    } else if (filter === 'ongoing') {
+    } else if (filter === "ongoing") {
       matchesFilter = now >= compStart && now <= compEnd;
     }
-    
-    const matchesSearch = comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         comp.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesSearch =
+      comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      comp.description.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   // Check if user is registered for a competition
   const isRegistered = (competitionId: string) => {
-    return userRegistrations.some(reg => 
-      reg.competition_id === competitionId && 
-      reg.status !== 'cancelled'
+    return userRegistrations.some(
+      (reg) =>
+        reg.competition_id === competitionId && reg.status !== "cancelled"
     );
   };
 
   // Get registration status for a competition
   const getRegistrationStatus = (competitionId: string) => {
-    const registration = userRegistrations.find(reg => 
-      reg.competition_id === competitionId && 
-      reg.status !== 'cancelled'
+    const registration = userRegistrations.find(
+      (reg) =>
+        reg.competition_id === competitionId && reg.status !== "cancelled"
     );
     return registration?.status || null;
   };
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
     }).format(amount);
   };
 
   // Format date
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
@@ -861,20 +937,28 @@ const KompetisiContent = () => {
   // Get category color
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'programming': return 'bg-blue-500/20 text-blue-400 border-blue-400/30';
-      case 'design': return 'bg-purple-500/20 text-purple-400 border-purple-400/30';
-      case 'gaming': return 'bg-green-500/20 text-green-400 border-green-400/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-400/30';
+      case "programming":
+        return "bg-blue-500/20 text-blue-400 border-blue-400/30";
+      case "design":
+        return "bg-purple-500/20 text-purple-400 border-purple-400/30";
+      case "gaming":
+        return "bg-green-500/20 text-green-400 border-green-400/30";
+      default:
+        return "bg-gray-500/20 text-gray-400 border-gray-400/30";
     }
   };
 
   // Get status color
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-500/20 text-yellow-400 border-yellow-400/30';
-      case 'confirmed': return 'bg-green-500/20 text-green-400 border-green-400/30';
-      case 'rejected': return 'bg-red-500/20 text-red-400 border-red-400/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-400/30';
+      case "pending":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-400/30";
+      case "confirmed":
+        return "bg-green-500/20 text-green-400 border-green-400/30";
+      case "rejected":
+        return "bg-red-500/20 text-red-400 border-red-400/30";
+      default:
+        return "bg-gray-500/20 text-gray-400 border-gray-400/30";
     }
   };
 
@@ -884,7 +968,9 @@ const KompetisiContent = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-8 h-8 text-neutral_02 animate-spin" />
-            <p className="text-neutral_01/60 text-sm sm:text-base">Memuat data kompetisi...</p>
+            <p className="text-neutral_01/60 text-sm sm:text-base">
+              Memuat data kompetisi...
+            </p>
           </div>
         </div>
       </div>
@@ -901,7 +987,9 @@ const KompetisiContent = () => {
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral_01">
             Kompetisi
           </h1>
-          <p className="text-neutral_01/60 text-sm sm:text-base">Daftar dan kelola kompetisi Anda</p>
+          <p className="text-neutral_01/60 text-sm sm:text-base">
+            Daftar dan kelola kompetisi Anda
+          </p>
         </div>
       </div>
 
@@ -921,20 +1009,25 @@ const KompetisiContent = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 sm:gap-3">
-            {['all', 'open', 'closed', 'ongoing'].map((status) => (
+            {["all", "open", "closed", "ongoing"].map((status) => (
               <button
                 key={status}
                 onClick={() => setFilter(status as any)}
                 className={`px-3 py-2 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
                   filter === status
-                    ? 'bg-neutral_02 text-brand_01'
-                    : 'bg-neutral_01/10 text-neutral_01/60 hover:bg-neutral_01/20'
+                    ? "bg-neutral_02 text-brand_01"
+                    : "bg-neutral_01/10 text-neutral_01/60 hover:bg-neutral_01/20"
                 }`}
               >
-                {status === 'all' ? 'Semua' : 
-                 status === 'open' ? 'Terbuka' :
-                 status === 'closed' ? 'Tertutup' :
-                 status === 'ongoing' ? 'Berlangsung' : status}
+                {status === "all"
+                  ? "Semua"
+                  : status === "open"
+                  ? "Terbuka"
+                  : status === "closed"
+                  ? "Tertutup"
+                  : status === "ongoing"
+                  ? "Berlangsung"
+                  : status}
               </button>
             ))}
           </div>
@@ -944,17 +1037,28 @@ const KompetisiContent = () => {
       {/* My Registrations */}
       {userRegistrations.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-neutral_01 mb-4">Registrasi Saya</h2>
+          <h2 className="text-xl font-bold text-neutral_01 mb-4">
+            Registrasi Saya
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {userRegistrations.map((registration) => (
-              <div key={registration.id} className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-xl p-5">
+              <div
+                key={registration.id}
+                className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-xl p-5"
+              >
                 <div className="flex items-start justify-between mb-4">
-                  <h3 className="font-semibold text-neutral_01 text-sm line-clamp-2">{registration.competition?.name}</h3>
-                  <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(registration.status)} ml-2 flex-shrink-0`}>
+                  <h3 className="font-semibold text-neutral_01 text-sm line-clamp-2">
+                    {registration.competition?.name}
+                  </h3>
+                  <span
+                    className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(
+                      registration.status
+                    )} ml-2 flex-shrink-0`}
+                  >
                     {registration.status}
                   </span>
                 </div>
-                
+
                 {/* Registration Info - Improved Layout with Icons */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
@@ -975,8 +1079,16 @@ const KompetisiContent = () => {
                       <p className="text-xs font-medium text-neutral_01/80 tracking-wide">
                         Status Pembayaran
                       </p>
-                      <p className={`text-sm font-medium ${registration.payment_status === 'paid' ? 'text-green-400' : 'text-yellow-400'}`}>
-                        {registration.payment_status === 'paid' ? 'Sudah Bayar' : 'Belum Bayar'}
+                      <p
+                        className={`text-sm font-medium ${
+                          registration.payment_status === "paid"
+                            ? "text-green-400"
+                            : "text-yellow-400"
+                        }`}
+                      >
+                        {registration.payment_status === "paid"
+                          ? "Sudah Bayar"
+                          : "Belum Bayar"}
                       </p>
                     </div>
                   </div>
@@ -1008,8 +1120,12 @@ const KompetisiContent = () => {
         {filteredCompetitions.length === 0 ? (
           <div className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-2xl p-8 text-center">
             <Trophy className="w-12 h-12 text-neutral_01/40 mx-auto mb-4" />
-            <p className="text-neutral_01/60">Tidak ada kompetisi yang ditemukan</p>
-            <p className="text-sm text-neutral_01/40 mt-2">Coba ubah filter atau kata kunci pencarian</p>
+            <p className="text-neutral_01/60">
+              Tidak ada kompetisi yang ditemukan
+            </p>
+            <p className="text-sm text-neutral_01/40 mt-2">
+              Coba ubah filter atau kata kunci pencarian
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1019,7 +1135,10 @@ const KompetisiContent = () => {
               const regOpen = isRegistrationOpen(competition);
 
               return (
-                <div key={competition.id} className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-2xl overflow-hidden hover:border-neutral_02/30 transition-all duration-300">
+                <div
+                  key={competition.id}
+                  className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-2xl overflow-hidden hover:border-neutral_02/30 transition-all duration-300"
+                >
                   {/* Image */}
                   {competition.poster_image_url && (
                     <div className="h-48 bg-gradient-to-r from-brand_01 to-brand_02 relative overflow-hidden">
@@ -1029,13 +1148,21 @@ const KompetisiContent = () => {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-3 left-3">
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(competition.status)}`}>
+                        <span
+                          className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(
+                            competition.status
+                          )}`}
+                        >
                           {competition.status}
                         </span>
                       </div>
                       {registered && (
                         <div className="absolute top-3 right-3">
-                          <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(registrationStatus!)}`}>
+                          <span
+                            className={`px-2 py-1 rounded-md text-xs font-medium border ${getStatusColor(
+                              registrationStatus!
+                            )}`}
+                          >
                             Terdaftar
                           </span>
                         </div>
@@ -1044,11 +1171,15 @@ const KompetisiContent = () => {
                   )}
 
                   <div className="p-6">
-                    <h3 className="text-lg font-bold text-neutral_01 mb-2">{competition.name}</h3>
-                    <p className="text-neutral_01/60 text-sm mb-6 line-clamp-3">{competition.description}</p>
+                    <h3 className="text-lg font-bold text-neutral_01 mb-2">
+                      {competition.name}
+                    </h3>
+                    <p className="text-neutral_01/60 text-sm mb-6 line-clamp-3">
+                      {competition.description}
+                    </p>
 
                     {/* Competition Info - Improved Layout with Icons */}
-                    <div className="grid grid-cols-1 gap-4 mb-6">                      
+                    <div className="grid grid-cols-1 gap-4 mb-6">
                       {/* Registration Fee */}
                       <div className="flex items-center gap-3">
                         <DollarSign className="w-4 h-4 text-neutral_02 flex-shrink-0" />
@@ -1057,7 +1188,9 @@ const KompetisiContent = () => {
                             Biaya Pendaftaran
                           </p>
                           <p className="text-sm text-neutral_01/90 font-medium">
-                            {competition.registration_fee === 0 ? 'Gratis' : formatCurrency(competition.registration_fee)}
+                            {competition.registration_fee === 0
+                              ? "Gratis"
+                              : formatCurrency(competition.registration_fee)}
                           </p>
                         </div>
                       </div>
@@ -1070,7 +1203,8 @@ const KompetisiContent = () => {
                             Periode Pendaftaran
                           </p>
                           <p className="text-sm text-neutral_01/90 font-medium">
-                            {formatDate(competition.registration_start)} - {formatDate(competition.registration_end)}
+                            {formatDate(competition.registration_start)} -{" "}
+                            {formatDate(competition.registration_end)}
                           </p>
                         </div>
                       </div>
@@ -1084,7 +1218,8 @@ const KompetisiContent = () => {
                           </p>
                           <p className="text-sm text-neutral_01/90 font-medium">
                             {formatDate(competition.competition_start)}
-                            {competition.competition_end !== competition.competition_start && 
+                            {competition.competition_end !==
+                              competition.competition_start &&
                               ` - ${formatDate(competition.competition_end)}`}
                           </p>
                         </div>
@@ -1099,18 +1234,22 @@ const KompetisiContent = () => {
                               Total Hadiah
                             </p>
                             <p className="text-sm text-neutral_01/90 font-medium">
-                              {formatCurrency(competition.first_prize_amount + competition.second_prize_amount! + competition?.third_prize_amount!)}
+                              {formatCurrency(
+                                competition.first_prize_amount +
+                                  competition.second_prize_amount! +
+                                  competition?.third_prize_amount!
+                              )}
                             </p>
                           </div>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 ">
                       {competition.guidebook_url && (
                         <button
                           onClick={() => {
-                            window.open(competition.guidebook_url, '_blank');
+                            window.open(competition.guidebook_url, "_blank");
                           }}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-neutral_01/10 border border-neutral_01/20 text-neutral_01 text-sm font-medium rounded-lg hover:bg-neutral_01/20 transition-colors"
                         >
@@ -1118,7 +1257,7 @@ const KompetisiContent = () => {
                           Lihat Guidebook
                         </button>
                       )}
-                      
+
                       {!registered && regOpen && user && (
                         <button
                           onClick={() => {
@@ -1158,6 +1297,7 @@ const KompetisiContent = () => {
 
 const TimContent = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [team, setTeam] = useState<TeamWithMembers | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
@@ -1168,21 +1308,29 @@ const TimContent = () => {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showKickModal, setShowKickModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [memberToKick, setMemberToKick] = useState<{ id: string, name: string } | null>(null);
+  const [showProfileWarning, setShowProfileWarning] = useState(false);
+  const [memberToKick, setMemberToKick] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isCopied, setIsCopied] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    position?: "insideCard" | "outsideCard";
+    text: string;
+  } | null>(null);
   const router = useRouter();
 
   // Form states
   const [createTeamForm, setCreateTeamForm] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     maxMembers: 3,
-    isPublic: true
+    isPublic: true,
   });
 
   const [joinTeamForm, setJoinTeamForm] = useState({
-    teamCode: ''
+    teamCode: "",
   });
 
   const [previewTeam, setPreviewTeam] = useState<TeamWithMembers | null>(null);
@@ -1195,26 +1343,30 @@ const TimContent = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Get current user
       const userResult = await authService.getCurrentUser();
       if (userResult.error || !userResult.user) {
-        router.push('/auth/login');
+        router.push("/auth/login");
         return;
       }
 
       setUser(userResult.user);
+      setProfile(userResult.profile);
 
       // Get user's team
       const teamResult = await teamService.getUserTeam(userResult.user.id);
       if (teamResult.error) {
-        setMessage({ type: 'error', text: teamResult.error });
+        setMessage({ type: "error", text: teamResult.error });
       } else {
         setTeam(teamResult.data || null);
       }
     } catch (error) {
-      console.error('Error loading team data:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat memuat data.' });
+      console.error("Error loading team data:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat memuat data.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -1228,11 +1380,29 @@ const TimContent = () => {
     }
   }, [message]);
 
+  // Check if profile is complete for team actions
+  const canAccessTeamActions = isProfileComplete(profile);
+  const missingFields = getMissingProfileFields(profile);
+
+  // Handle team action with profile check
+  const handleTeamAction = (action: "create" | "join") => {
+    if (!canAccessTeamActions) {
+      setShowProfileWarning(true);
+      return;
+    }
+
+    if (action === "create") {
+      setShowCreateModal(true);
+    } else if (action === "join") {
+      setShowJoinModal(true);
+    }
+  };
+
   // Handle create team
   const handleCreateTeam = async () => {
     if (!user) return;
     if (!createTeamForm.name.trim()) {
-      setMessage({ type: 'error', text: 'Nama tim harus diisi.' });
+      setMessage({ type: "error", text: "Nama tim harus diisi." });
       return;
     }
 
@@ -1241,21 +1411,28 @@ const TimContent = () => {
       const result = await teamService.createTeam(user.id, {
         name: createTeamForm.name.trim(),
         description: createTeamForm.description.trim() || undefined,
-        max_members: createTeamForm.maxMembers,
-        is_public: createTeamForm.isPublic
+        is_public: createTeamForm.isPublic,
       });
 
       if (result.error) {
-        setMessage({ type: 'error', text: result.error });
+        setMessage({ type: "error", text: result.error });
       } else {
-        setMessage({ type: 'success', text: 'Tim berhasil dibuat!' });
+        setMessage({ type: "success", text: "Tim berhasil dibuat!" });
         setShowCreateModal(false);
-        setCreateTeamForm({ name: '', description: '', maxMembers: 3, isPublic: true });
+        setCreateTeamForm({
+          name: "",
+          description: "",
+          maxMembers: 3,
+          isPublic: true,
+        });
         await loadData(); // Reload team data
       }
     } catch (error) {
-      console.error('Error creating team:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat membuat tim.' });
+      console.error("Error creating team:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat membuat tim.",
+      });
     } finally {
       setIsCreatingTeam(false);
     }
@@ -1264,22 +1441,31 @@ const TimContent = () => {
   // Handle join team - preview first
   const handlePreviewTeam = async () => {
     if (!joinTeamForm.teamCode.trim()) {
-      setMessage({ type: 'error', text: 'Kode tim harus diisi.' });
+      setMessage({ type: "error", text: "Kode tim harus diisi." });
       return;
     }
 
     try {
-      const result = await teamService.getTeamByCode(joinTeamForm.teamCode.trim());
+      const result = await teamService.getTeamByCode(
+        joinTeamForm.teamCode.trim()
+      );
       if (result.error) {
-        setMessage({ type: 'error', text: result.error });
+        setMessage({ type: "error", text: result.error });
       } else if (!result.data) {
-        setMessage({ type: 'error', text: 'Tim dengan kode tersebut tidak ditemukan.' });
+        setMessage({
+          type: "error",
+          position: "insideCard",
+          text: "Tim dengan kode tersebut tidak ditemukan.",
+        });
       } else {
         setPreviewTeam(result.data);
       }
     } catch (error) {
-      console.error('Error previewing team:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat mencari tim.' });
+      console.error("Error previewing team:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat mencari tim.",
+      });
     }
   };
 
@@ -1291,17 +1477,20 @@ const TimContent = () => {
     try {
       const result = await teamService.joinTeam(user.id, previewTeam.code);
       if (result.error) {
-        setMessage({ type: 'error', text: result.error });
+        setMessage({ type: "error", text: result.error });
       } else {
-        setMessage({ type: 'success', text: 'Berhasil bergabung dengan tim!' });
+        setMessage({ type: "success", text: "Berhasil bergabung dengan tim!" });
         setShowJoinModal(false);
-        setJoinTeamForm({ teamCode: '' });
+        setJoinTeamForm({ teamCode: "" });
         setPreviewTeam(null);
         await loadData(); // Reload team data
       }
     } catch (error) {
-      console.error('Error joining team:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat bergabung dengan tim.' });
+      console.error("Error joining team:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat bergabung dengan tim.",
+      });
     } finally {
       setIsJoiningTeam(false);
     }
@@ -1319,15 +1508,18 @@ const TimContent = () => {
     try {
       const result = await teamService.leaveTeam(user.id);
       if (result.error) {
-        setMessage({ type: 'error', text: result.error });
+        setMessage({ type: "error", text: result.error });
       } else {
-        setMessage({ type: 'success', text: 'Berhasil keluar dari tim.' });
+        setMessage({ type: "success", text: "Berhasil keluar dari tim." });
         setShowLeaveModal(false);
         await loadData(); // Reload team data
       }
     } catch (error) {
-      console.error('Error leaving team:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat keluar dari tim.' });
+      console.error("Error leaving team:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat keluar dari tim.",
+      });
     }
   };
 
@@ -1344,16 +1536,22 @@ const TimContent = () => {
     try {
       const result = await teamService.kickMember(user.id, memberToKick.id);
       if (result.error) {
-        setMessage({ type: 'error', text: result.error });
+        setMessage({ type: "error", text: result.error });
       } else {
-        setMessage({ type: 'success', text: `${memberToKick.name} berhasil dikeluarkan dari tim.` });
+        setMessage({
+          type: "success",
+          text: `${memberToKick.name} berhasil dikeluarkan dari tim.`,
+        });
         setShowKickModal(false);
         setMemberToKick(null);
         await loadData(); // Reload team data
       }
     } catch (error) {
-      console.error('Error kicking member:', error);
-      setMessage({ type: 'error', text: 'Terjadi kesalahan saat mengeluarkan anggota.' });
+      console.error("Error kicking member:", error);
+      setMessage({
+        type: "error",
+        text: "Terjadi kesalahan saat mengeluarkan anggota.",
+      });
     }
   };
 
@@ -1362,7 +1560,7 @@ const TimContent = () => {
     if (team?.code) {
       navigator.clipboard.writeText(team.code);
       setIsCopied(true);
-      
+
       // Reset icon setelah 2 detik
       setTimeout(() => {
         setIsCopied(false);
@@ -1373,8 +1571,8 @@ const TimContent = () => {
   // Get user's role in team
   const getUserRole = () => {
     if (!user || !team?.members) return null;
-    const member = team.members.find(m => m.id === user.id);
-    return member?.is_team_leader ? 'leader' : 'member';
+    const member = team.members.find((m) => m.id === user.id);
+    return member?.is_team_leader ? "leader" : "member";
   };
 
   const userRole = getUserRole();
@@ -1385,7 +1583,9 @@ const TimContent = () => {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="w-8 h-8 text-neutral_02 animate-spin" />
-            <p className="text-neutral_01/60 text-sm sm:text-base">Memuat data tim...</p>
+            <p className="text-neutral_01/60 text-sm sm:text-base">
+              Memuat data tim...
+            </p>
           </div>
         </div>
       </div>
@@ -1404,7 +1604,9 @@ const TimContent = () => {
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-neutral_01">
               Tim Anda
             </h1>
-            <p className="text-neutral_01/60 text-sm sm:text-base">Kelola tim dan anggota tim</p>
+            <p className="text-neutral_01/60 text-sm sm:text-base">
+              Kelola tim dan anggota tim
+            </p>
           </div>
         </div>
 
@@ -1412,15 +1614,35 @@ const TimContent = () => {
         {!team && (
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <button
-              onClick={() => setShowJoinModal(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral_01/10 border border-neutral_01/20 rounded-xl text-neutral_01 hover:bg-neutral_01/20 transition-colors"
+              onClick={() => handleTeamAction("join")}
+              disabled={!canAccessTeamActions}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 border border-neutral_01/20 rounded-xl transition-colors ${
+                canAccessTeamActions
+                  ? "bg-neutral_01/10 text-neutral_01 hover:bg-neutral_01/20"
+                  : "bg-neutral_01/5 text-neutral_01/40 cursor-not-allowed"
+              }`}
+              title={
+                !canAccessTeamActions
+                  ? "Lengkapi profil Anda terlebih dahulu"
+                  : ""
+              }
             >
               <UserPlus className="w-4 h-4" />
               <span className="text-sm font-medium">Gabung Tim</span>
             </button>
             <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-neutral_02 hover:bg-neutral_02/80 rounded-xl text-brand_01 transition-colors"
+              onClick={() => handleTeamAction("create")}
+              disabled={!canAccessTeamActions}
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl transition-colors ${
+                canAccessTeamActions
+                  ? "bg-neutral_02 hover:bg-neutral_02/80 text-brand_01"
+                  : "bg-neutral_01/10 text-neutral_01/40 cursor-not-allowed"
+              }`}
+              title={
+                !canAccessTeamActions
+                  ? "Lengkapi profil Anda terlebih dahulu"
+                  : ""
+              }
             >
               <Plus className="w-4 h-4" />
               <span className="text-sm font-medium">Buat Tim</span>
@@ -1430,18 +1652,44 @@ const TimContent = () => {
       </div>
 
       {/* Message */}
-      {message && (
-        <div className={`flex items-start gap-3 p-4 rounded-xl border mb-6 ${
-          message.type === 'success' 
-            ? 'bg-green-500/10 border-green-400/20 text-green-400' 
-            : 'bg-red-500/10 border-red-400/20 text-red-400'
-        }`}>
-          {message.type === 'success' ? (
+      {message && message.position === "outsideCard" && (
+        <div
+          className={`flex items-start gap-3 p-4 rounded-xl border mb-6 ${
+            message.type === "success"
+              ? "bg-green-500/10 border-green-400/20 text-green-400"
+              : "bg-red-500/10 border-red-400/20 text-red-400"
+          }`}
+        >
+          {message.type === "success" ? (
             <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           ) : (
             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           )}
           <span className="text-sm font-medium">{message.text}</span>
+        </div>
+      )}
+
+      {/* Profile Completeness Warning */}
+      {!team && !canAccessTeamActions && (
+        <div className="bg-yellow-500/10 border border-yellow-400/20 rounded-xl p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-yellow-400 font-medium mb-2">
+                Profil Belum Lengkap
+              </h4>
+              <p className="text-yellow-400/80 text-sm mb-3">
+                Lengkapi profil Anda terlebih dahulu untuk dapat membuat atau
+                bergabung dengan tim.
+              </p>
+              <button
+                onClick={() => router.push("/dashboard?menu=profil")}
+                className="text-sm bg-yellow-400/20 hover:bg-yellow-400/30 text-yellow-400 px-3 py-1.5 rounded-lg transition-colors"
+              >
+                Lengkapi Profil
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1453,17 +1701,24 @@ const TimContent = () => {
             <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-lg sm:text-xl font-bold text-neutral_01 truncate">{team.name}</h2>
-                  {userRole === 'leader' && (
+                  <h2 className="text-lg sm:text-xl font-bold text-neutral_01 truncate">
+                    {team.name}
+                  </h2>
+                  {userRole === "leader" && (
                     <Crown className="w-5 h-5 text-yellow-400 flex-shrink-0" />
                   )}
                 </div>
-                <p className="text-neutral_01/60 mb-4 text-sm sm:text-base">{team.description || 'Tidak ada deskripsi'}</p>
-                
+                <p className="text-neutral_01/60 mb-4 text-sm sm:text-base">
+                  {team.description || "Tidak ada deskripsi"}
+                </p>
+
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-neutral_01/80">
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 flex-shrink-0" />
-                    <span>{team.current_members}/{team.max_members} anggota</span>
+                    <span>
+                      {team.current_members}/{TEAM_REQUIREMENTS.MAX_MEMBERS}{" "}
+                      anggota
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Hash className="w-4 h-4 flex-shrink-0" />
@@ -1471,7 +1726,7 @@ const TimContent = () => {
                     <button
                       onClick={copyTeamCode}
                       className={`p-1 hover:bg-neutral_01/10 rounded transition-all duration-200 text-neutral_01`}
-                      title={isCopied ? 'Disalin!' : 'Salin kode tim'}
+                      title={isCopied ? "Disalin!" : "Salin kode tim"}
                     >
                       {isCopied ? (
                         <CheckCircle className="w-3 h-3" />
@@ -1481,14 +1736,18 @@ const TimContent = () => {
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    {team.is_public ? <Eye className="w-4 h-4 flex-shrink-0" /> : <EyeOff className="w-4 h-4 flex-shrink-0" />}
-                    <span>{team.is_public ? 'Publik' : 'Private'}</span>
+                    {team.is_public ? (
+                      <Eye className="w-4 h-4 flex-shrink-0" />
+                    ) : (
+                      <EyeOff className="w-4 h-4 flex-shrink-0" />
+                    )}
+                    <span>{team.is_public ? "Publik" : "Private"}</span>
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 flex-shrink-0">
-                {userRole === 'leader' && (
+                {userRole === "leader" && (
                   <button
                     onClick={() => setShowSettingsModal(true)}
                     className="p-2 flex justify-center sm:p-2.5 bg-neutral_01/10 border border-neutral_01/20 rounded-xl text-neutral_01 hover:bg-neutral_01/20 transition-colors"
@@ -1508,31 +1767,44 @@ const TimContent = () => {
 
           {/* Team Members */}
           <div className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-2xl p-4 sm:p-6">
-            <h3 className="text-lg sm:text-xl font-semibold text-neutral_01 mb-4 sm:mb-6">Anggota Tim</h3>
+            <h3 className="text-lg sm:text-xl font-semibold text-neutral_01 mb-4 sm:mb-6">
+              Anggota Tim
+            </h3>
             <div className="space-y-3 sm:space-y-4">
               {team.members?.map((member) => (
-                <div key={member.id} className="flex items-center justify-between p-3 sm:p-4 bg-neutral_01/5 rounded-xl">
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-3 sm:p-4 bg-neutral_01/5 rounded-xl"
+                >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-neutral_02 rounded-full flex items-center justify-center flex-shrink-0">
                       <UserIcon className="w-5 h-5 sm:w-6 sm:h-6 text-brand_01" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-neutral_01 text-sm sm:text-base truncate">{member.full_name}</h4>
+                        <h4 className="font-medium text-neutral_01 text-sm sm:text-base truncate">
+                          {member.full_name}
+                        </h4>
                         {member.is_team_leader && (
                           <Crown className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                         )}
                       </div>
-                      <p className="text-xs sm:text-sm text-neutral_01/60 truncate">{member.email}</p>
+                      <p className="text-xs sm:text-sm text-neutral_01/60 truncate">
+                        {member.email}
+                      </p>
                       {member.university && (
-                        <p className="text-xs text-neutral_01/40 truncate">{member.university} - {member.major}</p>
+                        <p className="text-xs text-neutral_01/40 truncate">
+                          {member.university} - {member.major}
+                        </p>
                       )}
                     </div>
                   </div>
-                  
-                  {userRole === 'leader' && !member.is_team_leader && (
+
+                  {userRole === "leader" && !member.is_team_leader && (
                     <button
-                      onClick={() => handleKickMember(member.id, member.full_name)}
+                      onClick={() =>
+                        handleKickMember(member.id, member.full_name)
+                      }
                       className="p-2 bg-red-500/10 border border-red-400/20 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors touch-target flex-shrink-0 ml-2"
                     >
                       <UserMinus className="w-4 h-4" />
@@ -1547,21 +1819,44 @@ const TimContent = () => {
         // No Team State
         <div className="bg-neutral_01/5 backdrop-blur-sm border border-neutral_01/10 rounded-2xl p-8 text-center">
           <Users className="w-16 h-16 text-neutral_01/40 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-neutral_01 mb-2">Belum Bergabung Tim</h3>
+          <h3 className="text-xl font-semibold text-neutral_01 mb-2">
+            Belum Bergabung Tim
+          </h3>
           <p className="text-neutral_01/60 mb-6">
-            Anda belum bergabung dengan tim manapun. Buat tim baru atau bergabung dengan tim yang sudah ada.
+            Anda belum bergabung dengan tim manapun. Buat tim baru atau
+            bergabung dengan tim yang sudah ada.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => setShowJoinModal(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-xl text-neutral_01 hover:bg-neutral_01/20 transition-colors"
+              onClick={() => handleTeamAction("join")}
+              disabled={!canAccessTeamActions}
+              className={`flex items-center justify-center gap-2 px-6 py-3 border border-neutral_01/20 rounded-xl transition-colors ${
+                canAccessTeamActions
+                  ? "bg-neutral_01/10 text-neutral_01 hover:bg-neutral_01/20"
+                  : "bg-neutral_01/5 text-neutral_01/40 cursor-not-allowed"
+              }`}
+              title={
+                !canAccessTeamActions
+                  ? "Lengkapi profil Anda terlebih dahulu"
+                  : ""
+              }
             >
               <UserPlus className="w-5 h-5" />
               <span>Gabung Tim</span>
             </button>
             <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-neutral_02 hover:bg-neutral_02/80 rounded-xl text-brand_01 transition-colors"
+              onClick={() => handleTeamAction("create")}
+              disabled={!canAccessTeamActions}
+              className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl transition-colors ${
+                canAccessTeamActions
+                  ? "bg-neutral_02 hover:bg-neutral_02/80 text-brand_01"
+                  : "bg-neutral_01/10 text-neutral_01/40 cursor-not-allowed border border-neutral_01/20"
+              }`}
+              title={
+                !canAccessTeamActions
+                  ? "Lengkapi profil Anda terlebih dahulu"
+                  : ""
+              }
             >
               <Plus className="w-5 h-5" />
               <span>Buat Tim Baru</span>
@@ -1572,13 +1867,15 @@ const TimContent = () => {
 
       {/* Create Team Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-brand_01 via-brand_02 to-brand_01 border border-neutral_01/20 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border border-neutral_01/30 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">Buat Tim Baru</h3>
+              <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">
+                Buat Tim Baru
+              </h3>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="p-2 hover:bg-neutral_01/10 rounded-lg transition-colors touch-target"
+                className="p-2 hover:bg-neutral_01/10 rounded-lg transition-colors"
               >
                 <X className="w-4 h-4 sm:w-5 sm:h-5 text-neutral_01" />
               </button>
@@ -1587,12 +1884,20 @@ const TimContent = () => {
             <div className="space-y-4 sm:space-y-5">
               <div>
                 <label className="block text-sm font-medium text-neutral_01 mb-2">
-                  Nama Tim *
+                  Nama Tim <span className="text-red-500">*</span>
                 </label>
+                <p className="text-white/40 text-sm mb-2">
+                  Anda tidak dapat mengubah nama tim setelah dibuat.
+                </p>
                 <input
                   type="text"
                   value={createTeamForm.name}
-                  onChange={(e) => setCreateTeamForm(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setCreateTeamForm((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 placeholder-neutral_01/40 focus:outline-none focus:ring-2 focus:ring-neutral_02/50 transition-all duration-200"
                   placeholder="Masukkan nama tim"
                   maxLength={50}
@@ -1605,7 +1910,12 @@ const TimContent = () => {
                 </label>
                 <textarea
                   value={createTeamForm.description}
-                  onChange={(e) => setCreateTeamForm(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setCreateTeamForm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 placeholder-neutral_01/40 focus:outline-none focus:ring-2 focus:ring-neutral_02/50 resize-none transition-all duration-200"
                   placeholder="Deskripsi tim (opsional)"
                   rows={3}
@@ -1613,33 +1923,10 @@ const TimContent = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-neutral_01 mb-2">
-                  Maksimal Anggota
-                </label>
-                <select
-                  value={createTeamForm.maxMembers}
-                  onChange={(e) => setCreateTeamForm(prev => ({ ...prev, maxMembers: parseInt(e.target.value) }))}
-                  className="w-full px-3 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 focus:outline-none focus:ring-2 focus:ring-neutral_02/50 transition-all duration-200"
-                >
-                  {[1, 2, 3, 4, 5].map(num => (
-                    <option key={num} value={num}>{num} orang</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="isPublic"
-                  checked={createTeamForm.isPublic}
-                  onChange={(e) => setCreateTeamForm(prev => ({ ...prev, isPublic: e.target.checked }))}
-                  className="rounded"
-                />
-                <label htmlFor="isPublic" className="text-sm text-neutral_01">
-                  Tim publik (dapat ditemukan oleh orang lain)
-                </label>
-              </div>
+              <p className="text-white/40 text-sm ">
+                Setiap tim hanya bisa memiliki maksimal{" "}
+                <b>{TEAM_REQUIREMENTS.MAX_MEMBERS} anggota.</b>
+              </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-6">
@@ -1670,17 +1957,19 @@ const TimContent = () => {
 
       {/* Join Team Modal */}
       {showJoinModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-brand_01 via-brand_02 to-brand_01 border border-neutral_01/20 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border border-neutral_01/30 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">Bergabung dengan Tim</h3>
+              <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">
+                Bergabung dengan Tim
+              </h3>
               <button
                 onClick={() => {
                   setShowJoinModal(false);
-                  setJoinTeamForm({ teamCode: '' });
+                  setJoinTeamForm({ teamCode: "" });
                   setPreviewTeam(null);
                 }}
-                className="p-2 hover:bg-neutral_01/10 rounded-lg transition-colors touch-target"
+                className="p-2 hover:bg-neutral_01/10 rounded-lg transition-colors"
               >
                 <X className="w-4 h-4 sm:w-5 sm:h-5 text-neutral_01" />
               </button>
@@ -1695,7 +1984,12 @@ const TimContent = () => {
                   <input
                     type="text"
                     value={joinTeamForm.teamCode}
-                    onChange={(e) => setJoinTeamForm(prev => ({ ...prev, teamCode: e.target.value.toUpperCase() }))}
+                    onChange={(e) =>
+                      setJoinTeamForm((prev) => ({
+                        ...prev,
+                        teamCode: e.target.value.toUpperCase(),
+                      }))
+                    }
                     className="flex-1 px-3 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 placeholder-neutral_01/40 focus:outline-none focus:ring-2 focus:ring-neutral_02/50 transition-all duration-200"
                     placeholder="Masukkan kode tim"
                     maxLength={8}
@@ -1709,18 +2003,37 @@ const TimContent = () => {
                   </button>
                 </div>
               </div>
-
+              {(message && message.position === "insideCard") && (
+                <div
+                  className={`flex items-center gap-2 px-3 py-2.5 bg-${
+                    message.type === "success"
+                      ? "green-500/10 border-green-400/20 text-green-400"
+                      : "red-500/10 border-red-400/20 text-red-400"
+                  } rounded-lg`}
+                >
+                  {message.text}
+                </div>
+              )}
               {/* Team Preview */}
               {previewTeam && (
                 <div className="p-4 bg-neutral_01/10 border border-neutral_01/20 rounded-lg">
-                  <h4 className="font-medium text-neutral_01 mb-2">{previewTeam.name}</h4>
+                  <h4 className="font-medium text-neutral_01 mb-2">
+                    {previewTeam.name}
+                  </h4>
                   <p className="text-sm text-neutral_01/60 mb-3">
-                    {previewTeam.description || 'Tidak ada deskripsi'}
+                    {previewTeam.description || "Tidak ada deskripsi"}
                   </p>
                   <div className="flex items-center justify-between text-sm text-neutral_01/80">
-                    <span>{previewTeam.current_members}/{previewTeam.max_members} anggota</span>
-                    <span className={previewTeam.is_full ? 'text-red-400' : 'text-green-400'}>
-                      {previewTeam.is_full ? 'Penuh' : 'Tersedia'}
+                    <span>
+                      {previewTeam.current_members}/
+                      {TEAM_REQUIREMENTS.MAX_MEMBERS} anggota
+                    </span>
+                    <span
+                      className={
+                        previewTeam.is_full ? "text-red-400" : "text-green-400"
+                      }
+                    >
+                      {previewTeam.is_full ? "Penuh" : "Tersedia"}
                     </span>
                   </div>
                 </div>
@@ -1731,7 +2044,7 @@ const TimContent = () => {
               <button
                 onClick={() => {
                   setShowJoinModal(false);
-                  setJoinTeamForm({ teamCode: '' });
+                  setJoinTeamForm({ teamCode: "" });
                   setPreviewTeam(null);
                 }}
                 className="flex-1 px-4 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 hover:bg-neutral_01/20 transition-colors text-center"
@@ -1759,24 +2072,33 @@ const TimContent = () => {
 
       {/* Kick Member Confirmation Modal */}
       {showKickModal && memberToKick && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-brand_01 via-brand_02 to-brand_01 border border-neutral_01/20 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border border-neutral_01/30 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4 sm:mb-6">
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-500/20 border border-red-400/30 rounded-xl flex items-center justify-center">
                 <UserMinus className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">Keluarkan Anggota</h3>
-                <p className="text-sm text-neutral_01/60">Tindakan ini tidak dapat dibatalkan</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">
+                  Keluarkan Anggota
+                </h3>
+                <p className="text-sm text-neutral_01/60">
+                  Tindakan ini tidak dapat dibatalkan
+                </p>
               </div>
             </div>
 
             <div className="bg-neutral_01/10 border border-neutral_01/20 rounded-xl p-4 mb-6">
               <p className="text-neutral_01 mb-2">
-                Anda yakin ingin mengeluarkan <span className="font-semibold text-red-400">{memberToKick.name}</span> dari tim?
+                Anda yakin ingin mengeluarkan{" "}
+                <span className="font-semibold text-red-400">
+                  {memberToKick.name}
+                </span>{" "}
+                dari tim?
               </p>
               <p className="text-sm text-neutral_01/60">
-                Anggota yang dikeluarkan tidak akan bisa mengakses tim lagi dan harus bergabung ulang jika ingin kembali.
+                Anggota yang dikeluarkan tidak akan bisa mengakses tim lagi dan
+                harus bergabung ulang jika ingin kembali.
               </p>
             </div>
 
@@ -1804,26 +2126,37 @@ const TimContent = () => {
 
       {/* Leave Team Confirmation Modal */}
       {showLeaveModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-brand_01 via-brand_02 to-brand_01 border border-neutral_01/20 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border border-neutral_01/30 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center gap-3 mb-4 sm:mb-6">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500/20 border border-orange-400/30 rounded-xl flex items-center justify-center">
-                <LogOut className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-800/20 border border-red-400/30 rounded-xl flex items-center justify-center">
+                <LogOut className="w-5 h-5 sm:w-6 sm:h-6 text-red-600/60" />
               </div>
               <div>
-                <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">Keluar dari Tim</h3>
-                <p className="text-sm text-neutral_01/60">Tindakan ini tidak dapat dibatalkan</p>
+                <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">
+                  Keluar dari Tim
+                </h3>
+                <p className="text-sm text-neutral_01/60">
+                  Tindakan ini tidak dapat dibatalkan
+                </p>
               </div>
             </div>
 
             <div className="bg-neutral_01/10 border border-neutral_01/20 rounded-xl p-4 mb-6">
-              {userRole === 'leader' ? (
+              {userRole === "leader" ? (
                 <div>
                   <p className="text-neutral_01 mb-2">
-                    Anda adalah <span className="font-semibold text-yellow-400">leader tim</span>. Jika Anda keluar:
+                    Anda adalah{" "}
+                    <span className="font-semibold text-yellow-400">
+                      leader tim
+                    </span>
+                    . Jika Anda keluar:
                   </p>
                   <ul className="text-sm text-neutral_01/80 space-y-1 ml-4">
-                    <li>• Kepemimpinan akan dialihkan ke anggota lain secara otomatis</li>
+                    <li>
+                      • Kepemimpinan akan dialihkan ke anggota lain secara
+                      otomatis
+                    </li>
                     <li>• Anda harus bergabung ulang jika ingin kembali</li>
                     <li>• Tim akan tetap berjalan tanpa Anda</li>
                   </ul>
@@ -1831,7 +2164,11 @@ const TimContent = () => {
               ) : (
                 <div>
                   <p className="text-neutral_01 mb-2">
-                    Anda yakin ingin keluar dari tim <span className="font-semibold text-neutral_02">{team?.name}</span>?
+                    Anda yakin ingin keluar dari tim{" "}
+                    <span className="font-semibold text-neutral_02">
+                      {team?.name}
+                    </span>
+                    ?
                   </p>
                   <p className="text-sm text-neutral_01/60">
                     Anda harus bergabung ulang jika ingin kembali ke tim ini.
@@ -1849,10 +2186,81 @@ const TimContent = () => {
               </button>
               <button
                 onClick={confirmLeaveTeam}
-                className="flex-1 px-4 py-2.5 sm:py-3 bg-orange-600 hover:bg-orange-700 rounded-lg text-white transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2.5 sm:py-3 bg-red-900 hover:bg-red-900/80 rounded-lg text-white transition-colors flex items-center justify-center gap-2"
               >
                 <LogOut className="w-4 h-4" />
                 Keluar Tim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Incomplete Warning Modal */}
+      {showProfileWarning && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border border-neutral_01/30 rounded-2xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center gap-3 mb-4 sm:mb-6">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-yellow-500/20 border border-yellow-400/30 rounded-xl flex items-center justify-center">
+                <Info className="w-5 h-5 sm:w-6 sm:h-6 text-yellow-400" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-semibold text-neutral_01">
+                  Profil Belum Lengkap
+                </h3>
+                <p className="text-sm text-neutral_01/60">
+                  Lengkapi profil untuk mengakses fitur tim
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-neutral_01/10 border border-neutral_01/20 rounded-xl p-4 mb-6">
+              <p className="text-neutral_01 mb-3">
+                Untuk membuat atau bergabung dengan tim, Anda harus melengkapi
+                semua field profil terlebih dahulu.
+              </p>
+
+              <div className="mb-4">
+                <p className="text-neutral_01/80 text-sm mb-2">
+                  Field yang belum diisi:
+                </p>
+                <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
+                  {missingFields.map((field, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-2 text-sm"
+                    >
+                      <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full flex-shrink-0" />
+                      <span className="text-neutral_01/70">{field}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-yellow-500/10 border border-yellow-400/20 rounded-lg p-3">
+                <p className="text-yellow-400 text-sm">
+                  💡 <strong>Tips:</strong> Pastikan semua informasi pribadi,
+                  akademik, dan alamat telah diisi dengan benar.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setShowProfileWarning(false)}
+                className="flex-1 px-4 py-2.5 sm:py-3 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 hover:bg-neutral_01/20 transition-colors text-center"
+              >
+                Nanti Saja
+              </button>
+              <button
+                onClick={() => {
+                  setShowProfileWarning(false);
+                  router.push("/dashboard?menu=profil");
+                }}
+                className="flex-1 px-4 py-2.5 sm:py-3 bg-yellow-600 hover:bg-yellow-700 rounded-lg text-white transition-colors flex items-center justify-center gap-2"
+              >
+                <Edit3 className="w-4 h-4" />
+                Lengkapi Sekarang
               </button>
             </div>
           </div>

@@ -7,7 +7,7 @@ import React, { Suspense } from "react";
 
 const DashboardContent = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand_01 via-brand_02 to-brand_01 flex">
+    <div className="min-h-screen bg-gradient-to-br from-brand_01/20 via-brand_02 to-brand_02 flex">
       {/* Sidebar */}
       <Sidebar />
 

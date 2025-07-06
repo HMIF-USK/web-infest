@@ -6,7 +6,6 @@ export interface UserProfile {
   id: string;
   email: string;
   full_name: string;
-  phone?: string | null;
   whatsapp?: string | null;
   date_of_birth?: string | null;
   gender?: 'male' | 'female' | null;
