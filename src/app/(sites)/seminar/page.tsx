@@ -7,7 +7,6 @@ import AOS from "aos";
 import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
 import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
 import { Calendar, Clock, MapPin, Users, Award, ArrowLeft } from "lucide-react";
-import { SeminarSwiperImages } from "@/components/seminarSection/seminarSwiperImages";
 
 const GlowingOrb = ({
   size = 100,
@@ -203,9 +202,9 @@ const SeminarPage = () => {
               </div>
             </div>
             
-            <div data-aos="fade-left">
+            {/* <div data-aos="fade-left">
               <SeminarSwiperImages />
-            </div>
+            </div> */}
           </div>
         </div>
       </section>
