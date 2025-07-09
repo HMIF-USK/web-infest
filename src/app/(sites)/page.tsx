@@ -6,7 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { Glass } from "@/components/glass";
 import AOS from "aos";
-import { AnimatedCountUp } from "@/components/AnimatedCountUp";
+import { AnimatedCountUp } from "@/components/animatedCountUp";
 import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
 import { Speech, Trophy } from "lucide-react";
 
@@ -153,7 +153,7 @@ const InfestWebsite = () => {
           data-aos="fade-up"
         >
           {isMarqueeLoading ? (
-            <div className="m-auto flex flex-col h-[40vh] md:h-[60vh] lg:h-[80vh] w-full justify-center items-center animate-pulse bg-brand_02/60">
+            <div className="m-auto flex flex-col h-[40vh] md:h-[60vh] lg:h-[80vh] w-full justify-center items-center animate-pulse bg-brand_02/60 rounded-xl">
               <div className="w-16 h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 bg-gradient-to-br from-neutral_01/20 to-neutral_02/20 rounded-2xl flex items-center justify-center mb-4">
                 <div className="text-2xl md:text-3xl lg:text-4xl">🎭</div>
               </div>

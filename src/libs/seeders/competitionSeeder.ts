@@ -7,10 +7,6 @@ export interface Competition {
   slug: string;
   description: string;
   short_description?: string;
-  
-  // Competition Details
-  max_team_members: number;
-  min_team_members: number;
   registration_fee: number;
   
   // Timeline
@@ -33,6 +29,8 @@ export interface Competition {
   
   // Status and Metadata
   status: 'draft' | 'open' | 'ongoing' | 'closed' | 'completed';
+  is_google_form_registration?: boolean;
+  google_form_registration_url?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -44,13 +42,11 @@ const competitionsData: Competition[] = [
     slug: "coins-programming-contest",
     description: "Kompetisi programming selama 5 jam untuk menyelesaikan berbagai soal algoritma dan pemrograman. Peserta akan bekerja dalam tim untuk memecahkan masalah-masalah yang menantang menggunakan logika dan keterampilan coding.",
     short_description: "Kompetisi programming 5 jam dengan soal algoritma dan pemrograman",
-    max_team_members: 3,
-    min_team_members: 1,
     registration_fee: 75000,
-    registration_start: "2024-12-01T00:00:00Z",
-    registration_end: "2025-01-15T23:59:59Z",
-    competition_start: "2025-02-01T08:00:00Z",
-    competition_end: "2025-02-01T13:00:00Z",
+    registration_start: "2023-12-01T00:00:00Z",
+    registration_end: "2025-08-15T23:59:59Z",
+    competition_start: "2025-09-01T08:00:00Z",
+    competition_end: "2026-02-01T13:00:00Z",
     guidebook_url: "https://docs.google.com/document/d/1r5aPS28q4XLEHKvext7tvxrvq30hcALcWQDNb4Cfdjs/edit?tab=t.0",
     poster_image_url: "/assets/images/Computer Olympiad Infest USK.webp",
     first_prize_amount: 15000000,
@@ -59,20 +55,20 @@ const competitionsData: Competition[] = [
     second_prize_description: "Uang tunai + Sertifikat + Trophy + Merchandise",
     third_prize_amount: 7500000,
     third_prize_description: "Uang tunai + Sertifikat + Trophy + Merchandise",
-    status: "open"
+    status: "open",
+    is_google_form_registration: true,
+    google_form_registration_url: "https://docs.google.com/forms/u/0/"
   },
   {
     name: "UI/UX Design Competition",
     slug: "uiux-design-competition",
     description: "Kompetisi desain antarmuka dan pengalaman pengguna untuk menciptakan solusi digital yang inovatif dan user-friendly. Peserta akan mendesain aplikasi atau website dengan tema tertentu dalam waktu 8 jam.",
     short_description: "Kompetisi desain UI/UX dengan tema real-world problem solving",
-    max_team_members: 2,
-    min_team_members: 1,
     registration_fee: 50000,
-    registration_start: "2024-12-01T00:00:00Z",
-    registration_end: "2025-01-20T23:59:59Z",
-    competition_start: "2025-02-02T08:00:00Z",
-    competition_end: "2025-02-02T16:00:00Z",
+    registration_start: "2023-12-01T00:00:00Z",
+    registration_end: "2025-08-15T23:59:59Z",
+    competition_start: "2025-09-01T08:00:00Z",
+    competition_end: "2026-02-02T16:00:00Z",
     guidebook_url: "https://docs.google.com/document/u/1/d/1wf-F7GVP4F4JPyXD-lVvaJ7GmkQ75OG8fLx_xVamv3w/mobilebasic",
     poster_image_url: "/assets/images/hackathon.png",
     first_prize_amount: 10000000,
@@ -81,20 +77,19 @@ const competitionsData: Competition[] = [
     second_prize_description: "Uang tunai + Sertifikat + Trophy + Merchandise",
     third_prize_amount: 5000000,
     third_prize_description: "Uang tunai + Sertifikat + Trophy + Merchandise",
-    status: "open"
+    status: "open",
+    is_google_form_registration: false
   },
   {
     name: "Hackathon: Smart City Solutions",
     slug: "hackathon-smart-city",
     description: "Kompetisi hackathon 48 jam untuk mengembangkan solusi teknologi inovatif yang dapat membantu memecahkan masalah perkotaan. Peserta akan membuat aplikasi atau sistem yang mendukung konsep smart city dengan teknologi terkini.",
     short_description: "Hackathon 48 jam dengan tema Smart City Solutions",
-    max_team_members: 4,
-    min_team_members: 2,
     registration_fee: 80000,
-    registration_start: "2024-12-01T00:00:00Z",
-    registration_end: "2025-01-30T23:59:59Z",
-    competition_start: "2025-02-07T18:00:00Z",
-    competition_end: "2025-02-09T18:00:00Z",
+    registration_start: "2023-12-01T00:00:00Z",
+    registration_end: "2025-08-15T23:59:59Z",
+    competition_start: "2025-09-01T08:00:00Z",
+    competition_end: "2026-02-09T18:00:00Z",
     guidebook_url: "https://docs.google.com/document/d/1mg_EdoOXEXkwcWjV7Qba2pSaCeYgrGUCvv1uVCcCDtU/edit?tab=t.0",
     poster_image_url: "/assets/images/hackathon.png",
     first_prize_amount: 25000000,
@@ -103,7 +98,8 @@ const competitionsData: Competition[] = [
     second_prize_description: "Uang tunai + Mentoring startup + Trophy + Smartphone",
     third_prize_amount: 10000000,
     third_prize_description: "Uang tunai + Trophy + Smartwatch",
-    status: "open"
+    status: "open",
+    is_google_form_registration: false
   }
 ];
 
