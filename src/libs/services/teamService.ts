@@ -43,7 +43,7 @@ export interface TeamServiceResponse<T = any> {
   error?: string;
 }
 
-class TeamService {
+export const teamService = {
   // Membuat tim baru
   async createTeam(
     userId: string,
@@ -88,7 +88,7 @@ class TeamService {
       console.error("Unexpected error creating team:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Bergabung dengan tim menggunakan kode
   async joinTeam(
@@ -160,7 +160,7 @@ class TeamService {
       console.error("Unexpected error joining team:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Keluar dari tim
   async leaveTeam(userId: string): Promise<TeamServiceResponse<boolean>> {
@@ -233,7 +233,7 @@ class TeamService {
       console.error("Unexpected error leaving team:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Mendapatkan detail tim user
   async getUserTeam(
@@ -293,7 +293,7 @@ class TeamService {
       console.error("Unexpected error fetching user team:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Update informasi tim (hanya untuk leader)
   async updateTeam(
@@ -339,7 +339,7 @@ class TeamService {
       console.error("Unexpected error updating team:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Kick anggota tim (hanya untuk leader)
   async kickMember(
@@ -394,7 +394,7 @@ class TeamService {
       console.error("Unexpected error kicking member:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
-  }
+  },
 
   // Cari tim berdasarkan kode (untuk preview sebelum join)
   async getTeamByCode(
@@ -417,7 +417,71 @@ class TeamService {
       console.error("Unexpected error fetching team by code:", error);
       return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
     }
+  },
+
+  // Cek apakah tim sudah terdaftar kompetisi
+  async hasActiveCompetitionRegistration(
+    teamId: string
+  ): Promise<TeamServiceResponse<{ hasRegistration: boolean; competitionName?: string }>> {
+    try {
+      const { data, error } = await supabase
+        .from("competition_registrations")
+        .select(`
+          id,
+          status,
+          competition:competitions(name)
+        `)
+        .eq("team_id", teamId)
+        .neq("status", "cancelled")
+        .limit(1);
+
+      if (error) {
+        console.error("Error checking team competition registration:", error);
+        return { error: "Gagal memeriksa registrasi kompetisi tim." };
+      }
+
+      const hasRegistration = data && data.length > 0;
+      const competitionName = hasRegistration ? (data[0].competition as any)?.name : undefined;
+
+      return { 
+        data: { 
+          hasRegistration, 
+          competitionName 
+        } 
+      };
+    } catch (error) {
+      console.error("Unexpected error checking team registration:", error);
+      return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
+    }
+  },
+
+  // Cek apakah tim bisa diubah (tidak ada registrasi kompetisi aktif)
+  async canModifyTeam(
+    teamId: string
+  ): Promise<TeamServiceResponse<{ canModify: boolean; reason?: string }>> {
+    try {
+      const registrationCheck = await this.hasActiveCompetitionRegistration(teamId);
+      
+      if (registrationCheck.error) {
+        return { error: registrationCheck.error };
+      }
+
+      const hasRegistration = registrationCheck.data?.hasRegistration || false;
+      const competitionName = registrationCheck.data?.competitionName;
+
+      if (hasRegistration) {
+        return {
+          data: {
+            canModify: false,
+            reason: `Tim sudah terdaftar untuk kompetisi ${competitionName}. Anggota tim tidak dapat diubah.`
+          }
+        };
+      }
+
+      return { data: { canModify: true } };
+    } catch (error) {
+      console.error("Unexpected error checking team modification:", error);
+      return { error: "Terjadi kesalahan sistem. Silakan coba lagi." };
+    }
   }
 }
-
-export const teamService = new TeamService();

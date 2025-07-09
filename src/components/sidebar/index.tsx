@@ -31,16 +31,16 @@ const menuItems: MenuItem[] = [
     query: "profil"
   },
   {
-    id: "kompetisi",
-    label: "Kompetisi",
-    icon: Trophy,
-    query: "kompetisi"
-  },
-  {
     id: "tim",
     label: "Tim Anda",
     icon: Users,
     query: "tim"
+  },
+  {
+    id: "kompetisi",
+    label: "Kompetisi",
+    icon: Trophy,
+    query: "kompetisi"
   }
 ];
 
