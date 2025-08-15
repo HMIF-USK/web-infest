@@ -16,7 +16,7 @@ const Dashboard = () => {
     if (!currentMenu) {
       // Get last visited menu from localStorage, default to "profil"
       const lastMenu = localStorage.getItem("dashboard-last-menu") || "profil";
-      router.replace(`/dashboard?menu=${lastMenu}`);
+  router.replace(`/dashboard?menu=${lastMenu}`);
     } else {
       // Save current menu to localStorage
       localStorage.setItem("dashboard-last-menu", currentMenu);

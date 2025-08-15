@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  authService,
-  type UserProfile,
-} from "@/libs/services/authService";
+import { authService, type UserProfile } from "@/libs/services/authService";
 import { validateEmail, sanitizeInput } from "@/libs/security/utils";
+import { cloudinaryService } from "@/libs/services/cloudinaryService";
+import { ProfileSkeleton } from "@/components/skeletons";
 import type { User } from "@supabase/supabase-js";
 import {
   User as UserIcon,
@@ -23,6 +22,11 @@ import {
   AlertCircle,
   CheckCircle,
   Loader2,
+  Upload,
+  Image,
+  Trash2,
+  Eye,
+  Download,
 } from "lucide-react";
 
 const ProfileContent = () => {
@@ -36,6 +40,18 @@ const ProfileContent = () => {
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  // Student ID Image Upload states
+  const [studentIdFile, setStudentIdFile] = useState<File | null>(null);
+  const [studentIdPreview, setStudentIdPreview] = useState<string | null>(null);
+  const [isUploadingStudentId, setIsUploadingStudentId] = useState(false);
+  const [studentIdImageUrl, setStudentIdImageUrl] = useState<string | null>(
+    null
+  );
+
+  // Student ID Image Modal states
+  const [showStudentIdModal, setShowStudentIdModal] = useState(false);
+
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -83,6 +99,7 @@ const ProfileContent = () => {
 
         if (result.profile) {
           setProfile(result.profile);
+          setStudentIdImageUrl(result.profile.student_id_image_url || null);
           // Populate form dengan data profile yang ada
           setFormData({
             fullName: result.profile.full_name || "",
@@ -200,6 +217,111 @@ const ProfileContent = () => {
     }
   };
 
+  // Handle Student ID Image Upload
+  const handleStudentIdImageSelect = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const selectedFile = event.target.files?.[0];
+    if (!selectedFile) return;
+
+    // Validate file
+    const validation = cloudinaryService.validateFile(selectedFile);
+    if (!validation.isValid) {
+      setErrors((prev) => ({
+        ...prev,
+        studentIdImage: validation.error || "File tidak valid",
+      }));
+      return;
+    }
+
+    setStudentIdFile(selectedFile);
+    setErrors((prev) => ({
+      ...prev,
+      studentIdImage: "",
+    }));
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setStudentIdPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  const uploadStudentIdImage = async (): Promise<string | null> => {
+    if (!studentIdFile) return studentIdImageUrl;
+
+    setIsUploadingStudentId(true);
+
+    try {
+      const result = await cloudinaryService.uploadFile(studentIdFile);
+
+      if (result.success && result.data) {
+        const uploadedUrl = result.data.secure_url;
+        setStudentIdImageUrl(uploadedUrl);
+        setStudentIdFile(null);
+        setStudentIdPreview(null);
+        return uploadedUrl;
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          studentIdImage: result.error || "Gagal upload gambar",
+        }));
+        return null;
+      }
+    } catch (error: any) {
+      setErrors((prev) => ({
+        ...prev,
+        studentIdImage: error.message || "Terjadi kesalahan saat upload",
+      }));
+      return null;
+    } finally {
+      setIsUploadingStudentId(false);
+    }
+  };
+
+  const removeStudentIdImage = () => {
+    setStudentIdFile(null);
+    setStudentIdPreview(null);
+    setStudentIdImageUrl(null);
+    setErrors((prev) => ({
+      ...prev,
+      studentIdImage: "",
+    }));
+  };
+
+  const downloadStudentIdImage = async () => {
+    if (!studentIdImageUrl) return;
+
+    try {
+      // Fetch the image
+      const response = await fetch(studentIdImageUrl);
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Generate filename
+      const fileName = `kartu-mahasiswa-${
+        profile?.full_name?.replace(/\s+/g, "-") || "student-id"
+      }.${blob.type.split("/")[1] || "jpg"}`;
+      link.download = fileName;
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      // You could add a toast notification here if you have one
+    }
+  };
+
   const handleSave = async () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (!validateForm()) {
@@ -222,6 +344,16 @@ const ProfileContent = () => {
     setSaveMessage(null);
 
     try {
+      // Upload student ID image jika ada file baru
+      let uploadedStudentIdUrl = studentIdImageUrl;
+      if (studentIdFile) {
+        uploadedStudentIdUrl = await uploadStudentIdImage();
+        if (!uploadedStudentIdUrl && studentIdFile) {
+          // Jika upload gagal, hentikan proses save
+          return;
+        }
+      }
+
       // Prepare data untuk update profile
       const updateData: Partial<UserProfile> = {
         full_name: formData.fullName.trim(),
@@ -233,6 +365,7 @@ const ProfileContent = () => {
         faculty: formData.faculty.trim() || null,
         major: formData.major.trim() || null,
         student_id: formData.studentId.trim() || null,
+        student_id_image_url: uploadedStudentIdUrl,
         semester: formData.semester ? parseInt(formData.semester) : null,
         graduation_year: formData.graduationYear
           ? parseInt(formData.graduationYear)
@@ -299,7 +432,13 @@ const ProfileContent = () => {
         address: profile.address || "",
         postalCode: profile.postal_code || "",
       });
+      // Reset student ID image ke data tersimpan
+      setStudentIdImageUrl(profile.student_id_image_url || null);
     }
+
+    // Reset upload states
+    setStudentIdFile(null);
+    setStudentIdPreview(null);
     setIsEditing(false);
     setErrors({});
     setSaveMessage(null);
@@ -308,15 +447,8 @@ const ProfileContent = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 text-neutral_02 animate-spin" />
-            <p className="text-neutral_01/60 text-sm sm:text-base">
-              Memuat data profil...
-            </p>
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <ProfileSkeleton />
       </div>
     );
   }
@@ -562,6 +694,7 @@ const ProfileContent = () => {
                 placeholder="2108107010001"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-neutral_01 mb-2">
                 Semester
@@ -618,6 +751,127 @@ const ProfileContent = () => {
                   <AlertCircle className="w-3 h-3" />
                   {errors.graduationYear}
                 </p>
+              )}
+            </div>
+            {/* Student ID Image Upload */}
+            <div className="">
+              <label className="block text-sm font-medium text-neutral_01 mb-2">
+                <Image className="w-4 h-4 inline mr-2" />
+                Foto Kartu Mahasiswa/Pelajar
+              </label>
+
+              {/* Current Image or Upload Area */}
+              {!isEditing && studentIdImageUrl ? (
+                // Display mode - show current image
+                <div className="relative group">
+                  <img
+                    src={studentIdImageUrl}
+                    alt="Kartu Mahasiswa/Pelajar"
+                    className="w-full h-48 object-cover rounded-lg border border-neutral_01/20"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                    <button
+                      onClick={() => setShowStudentIdModal(true)}
+                      className="px-3 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white hover:bg-white/30 transition-colors flex items-center gap-2"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Lihat
+                    </button>
+                  </div>
+                </div>
+              ) : isEditing ? (
+                // Edit mode - show upload interface
+                <div className="space-y-4">
+                  {/* Current image preview or file preview */}
+                  {(studentIdPreview || studentIdImageUrl) && (
+                    <div className="relative">
+                      <img
+                        src={studentIdPreview || studentIdImageUrl || ""}
+                        alt="Preview Kartu Mahasiswa"
+                        className="w-full h-48 object-cover rounded-lg border border-neutral_01/20"
+                      />
+                      <button
+                        onClick={removeStudentIdImage}
+                        className="absolute top-2 right-2 p-1 bg-red-500 hover:bg-red-600 rounded-full text-white transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Upload area */}
+                  {!studentIdPreview && !studentIdImageUrl && (
+                    <div className="border-2 border-dashed border-neutral_01/20 rounded-lg p-6 text-center hover:border-neutral_01/40 transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleStudentIdImageSelect}
+                        className="hidden"
+                        id="student-id-upload"
+                      />
+                      <label
+                        htmlFor="student-id-upload"
+                        className="cursor-pointer flex flex-col items-center space-y-2"
+                      >
+                        <div className="w-12 h-12 bg-neutral_01/10 rounded-full flex items-center justify-center">
+                          <Upload className="w-6 h-6 text-neutral_01/60" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-neutral_01">
+                            Upload Foto Kartu Mahasiswa/Pelajar
+                          </p>
+                          <p className="text-sm text-neutral_01/60 mt-1">
+                            JPG, PNG, atau WEBP (maks. 5MB)
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Upload new file button if already has image */}
+                  {(studentIdImageUrl || studentIdPreview) && (
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleStudentIdImageSelect}
+                        className="hidden"
+                        id="student-id-upload-new"
+                      />
+                      <label
+                        htmlFor="student-id-upload-new"
+                        className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-neutral_01/10 border border-neutral_01/20 rounded-lg text-neutral_01 hover:bg-neutral_01/20 transition-colors"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Ganti Gambar
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Error message */}
+                  {errors.studentIdImage && (
+                    <p className="text-red-400 text-xs flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.studentIdImage}
+                    </p>
+                  )}
+
+                  {/* Upload progress */}
+                  {isUploadingStudentId && (
+                    <div className="flex items-center gap-2 text-sm text-neutral_01/60">
+                      <div className="w-4 h-4 border-2 border-neutral_01/60 border-t-transparent rounded-full animate-spin"></div>
+                      Mengupload gambar...
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // No image state
+                <div className="border-2 border-dashed border-neutral_01/20 rounded-lg p-6 text-center">
+                  <Image className="w-12 h-12 text-neutral_01/40 mx-auto mb-2" />
+                  <p className="text-neutral_01/60 text-sm">
+                    Belum ada foto kartu mahasiswa/pelajar
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -721,8 +975,62 @@ const ProfileContent = () => {
           </div>
         )}
       </div>
+
+      {/* Student ID Image Modal */}
+      {showStudentIdModal && studentIdImageUrl && (
+        <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white/5 backdrop-blur-md border overflow-scroll border-neutral_01/30 rounded-2xl w-full max-w-2xl max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-neutral_01/20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-neutral_02 to-neutral_01 rounded-xl flex items-center justify-center">
+                  <Image className="w-5 h-5 text-brand_01" />
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-neutral_01">
+                    Kartu Mahasiswa/Pelajar
+                  </h3>
+                  <p className="text-sm text-neutral_01/60">
+                    {profile?.full_name || "Nama tidak tersedia"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowStudentIdModal(false)}
+                className="p-2 hover:bg-neutral_01/20 rounded-lg text-neutral_01/60 hover:text-neutral_01 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4 sm:p-6">
+              <div className="relative bg-neutral_01/10 rounded-xl overflow-hidden">
+                <img
+                  src={studentIdImageUrl}
+                  alt="Kartu Mahasiswa/Pelajar"
+                  className="w-full h-auto max-h-[60vh] object-contain"
+                  onError={(e) => {
+                    console.error("Error loading image:", e);
+                    setShowStudentIdModal(false);
+                  }}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <button
+                onClick={downloadStudentIdImage}
+                className="mt-6 flex items-center ml-auto justify-center gap-2 px-4 py-2.5 bg-green-600/20 border border-green-500/30 rounded-xl text-green-400 hover:bg-green-600/30 transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default ProfileContent
+export default ProfileContent;
