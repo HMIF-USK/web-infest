@@ -46,10 +46,7 @@ export interface CompetitionRegistration {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   registration_date: string;
   approved_at?: string;
-  approved_by?: string;
   payment_proof_url?: string;
-  payment_verified_at?: string;
-  payment_verified_by?: string;
   notes?: string;
   admin_notes?: string;
   created_at: string;
@@ -499,7 +496,7 @@ export const competitionService = {
     try {
       const { data, error } = await supabase
         .from('competition_registrations')
-        .select('status, payment_proof_url, payment_verified_at')
+        .select('status, payment_proof_url')
         .eq('competition_id', competitionId);
 
       if (error) {
@@ -513,8 +510,6 @@ export const competitionService = {
         approved_registrations: data.filter(r => r.status === 'approved').length,
         rejected_registrations: data.filter(r => r.status === 'rejected').length,
         cancelled_registrations: data.filter(r => r.status === 'cancelled').length,
-        paid_registrations: data.filter(r => r.payment_verified_at !== null).length,
-        unpaid_registrations: data.filter(r => r.payment_verified_at === null && r.status !== 'cancelled').length
       };
 
       return { stats, error: null };

@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Head from "next/head";
 import "aos/dist/aos.css";
 import "../css/globals.css";
-import { montserrat, plus_jakarta_sans } from "@/app/fonts/fonts";
+import { montserrat } from "@/app/fonts/fonts";
 import { Header } from "@/components/header";
 import FooterDekstop from "@/components/footer/footerDekstop";
 import FooterMobile from "@/components/footer/footerMobile";
+import NextTopLoader from "nextjs-toploader";
 
 export const metadata: Metadata = {
   title: "Informatics Festival",
@@ -39,6 +40,18 @@ export default function RootLayout({
       <body
         className={`${montserrat.className} w-full min-h-screen bg-gradient-to-b from-brand_01 to-brand_02 overflow-x-hidden`}
       >
+        <NextTopLoader
+          color="#FDD026"
+          initialPosition={0.2}
+          crawlSpeed={200}
+          height={2}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={300}
+          shadow="0 0 10px rgba(253, 208, 38, 0.6)"
+          zIndex={9999}
+        />
         <Header />
         {children}
         <div className="flex w-full">

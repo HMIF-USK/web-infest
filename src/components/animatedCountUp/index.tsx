@@ -6,6 +6,7 @@ import CountUp from "react-countup";
 interface AnimatedCountUpProps {
   start?: number;
   end: number;
+  prefix?: string;
   suffix?: string;
   duration?: number;
   separator?: string;
@@ -16,6 +17,7 @@ interface AnimatedCountUpProps {
 export const AnimatedCountUp = ({
   start=0,
   end,
+  prefix = "",
   suffix = "",
   duration = 2,
   separator = ",",
@@ -50,6 +52,7 @@ export const AnimatedCountUp = ({
           separator={separator}
           start={start}
           end={end}
+          prefix={prefix}
           suffix={suffix}
           duration={duration}
           className={className}

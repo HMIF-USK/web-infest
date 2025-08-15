@@ -7,6 +7,7 @@ import {
   type UserProfile,
 } from "@/libs/services/authService";
 import { teamService, type TeamWithMembers } from "@/libs/services/teamService";
+import { TeamSkeleton } from "@/components/skeletons";
 import type { User } from "@supabase/supabase-js";
 import {
   User as UserIcon,
@@ -348,15 +349,8 @@ const TeamContent = () => {
 
   if (isLoading) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 text-neutral_02 animate-spin" />
-            <p className="text-neutral_01/60 text-sm sm:text-base">
-              Memuat data tim...
-            </p>
-          </div>
-        </div>
+      <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <TeamSkeleton />
       </div>
     );
   }

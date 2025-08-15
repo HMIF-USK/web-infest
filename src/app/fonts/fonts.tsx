@@ -15,9 +15,11 @@ export const plus_jakarta_sans = Plus_Jakarta_Sans({
 
 export const montserrat =  Montserrat({
     subsets: ["latin"],
+    variable: "--font-montserrat",    
 })
 
 export const dm_serif_display = DM_Serif_Display({
     subsets: ["latin"],
     weight: "400",
+    variable: "--font-dm-serif-display",
 })

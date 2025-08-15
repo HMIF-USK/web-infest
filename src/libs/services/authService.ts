@@ -16,6 +16,7 @@ export interface UserProfile {
   faculty?: string | null;
   major?: string | null;
   student_id?: string | null;
+  student_id_image_url?: string | null;
   semester?: number | null;
   graduation_year?: number | null;
   

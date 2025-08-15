@@ -3,8 +3,7 @@
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { useScreenSize } from "../../libs/hooks/screenSizeValidation";
-import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
-import { dm_serif_display, montserrat } from "@/app/fonts/fonts";
+import { dm_serif_display } from "@/app/fonts/fonts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { authService } from "@/libs/services/authService";
