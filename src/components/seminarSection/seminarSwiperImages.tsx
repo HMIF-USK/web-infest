@@ -7,7 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import { useScreenSize } from "@/libs/hooks/screenSizeValidation";
+import { useScreenSize } from "@/utils/hooks/screenSizeValidation";
 
 export const SeminarSwiperImages = () => {
   const {isDesktop, isTablet} = useScreenSize();
@@ -58,7 +58,7 @@ export const SeminarSwiperImages = () => {
             height={500}
             src={image.src}
             alt="Dokumentasi Seminar Infest USK"
-            className="rounded-lg border border-primary w-full h-full lg:h-[30rem] object-cover"
+            className="rounded-lg border border-primary w-full h-[16rem] lg:h-[30rem] object-cover"
           />
         </SwiperSlide>
       ))}

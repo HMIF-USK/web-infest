@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import Link from "next/link";
-import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
+import { scrollIntoSection } from "@/utils/helpers/scrollIntoSection";
 import { socialAccounts } from "@/data/socialAccount";
 
 

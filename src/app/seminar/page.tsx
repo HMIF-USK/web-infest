@@ -7,7 +7,7 @@ const Seminar = () => {
   return (
     <div className='w-screen h-screen flex flex-col justify-center items-center gap-8 relative'>
         <Image
-            src='/assets/images/logo-infest-usk.webp'
+            src="/assets/images/Logo Infest USK.webp"
             width={500}
             height={500}
             className='w-[32vw] md:w-[8.6vw] absolute top-[22%]'

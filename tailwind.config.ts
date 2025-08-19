@@ -1,15 +1,13 @@
-import type { Config } from "tailwindcss";
+import { withUt } from "uploadthing/tw";
 
-const config: Config = {
+export default withUt({
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{ts,tsx,mdx}"
   ],
   theme: {
     screens: {
       "sm": "640px",
-      "md": "768px",      
+      "md": "768px",
       "lg": "1025px",
     },
     extend: {
@@ -33,18 +31,15 @@ const config: Config = {
       fontFamily: {
         "cattedrale": ["Cattedrale", "sans-serif"],
         "cattedrale-outline": ["Cattedrale-Outline", "sans-serif"],
-        "imbue": ["Imbue", "serif"]
+        "imbue": ["Imbue", "serif"],
       },
-      colors: {   
-        // "primary": "#0A1214",      
-        // "secondary": "#070D0F",     
-        "primary": "#0C1914",      
-        "secondary": "#0A1214",      
+      colors: {
+        "primary": "#0C1914",
+        "secondary": "#0A1214",
         "primary-yellow": "#FDD026",
-        "secondary-yellow": "#B89926",      
+        "secondary-yellow": "#B89926",
       },
     },
   },
   plugins: [],
-};
-export default config;
+});

@@ -1,7 +1,7 @@
 export const partners = [
     {
         nama: "HMIF-USK1",
-        src:"https://jbymoblt3fzt0jez.public.blob.vercel-storage.com/logo-HMIF-usk.webp",   
+        src:"/assets/images/Logo HMIF USK.png",   
         width: 72,
         height: 72,
     },

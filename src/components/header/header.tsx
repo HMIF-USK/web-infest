@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import React, { useEffect, useRef, useState } from 'react'
-import { useScreenSize } from '../../libs/hooks/screenSizeValidation';
-import { scrollIntoSection } from '@/libs/helpers/scrollIntoSection';
+import { useScreenSize } from '../../utils/hooks/screenSizeValidation';
+import { scrollIntoSection } from '@/utils/helpers/scrollIntoSection';
 
 export const Header = () => {
   const [isMenuShow, setIsMenuShow] = useState<Boolean>(false);
@@ -51,7 +51,7 @@ export const Header = () => {
   }, []);
 
   return (
-    <div ref={navbarRef} className='fixed w-screen h-16 md:h-20 top-0 z-[100] px-8 md:px-12 py-4 flex items-center justify-between text-white bg-secondary border-b border-primary-yellow'> 
+    <div ref={navbarRef} className='fixed w-screen h-16 md:h-20 top-0 z-[80] px-8 md:px-12 py-4 flex items-center justify-between text-white bg-secondary border-b border-primary-yellow'> 
       <button onClick={() => scrollIntoSection("hero")} className='lg:hover:scale-110 duration-200'>
         <Image
           src='/assets/images/Logo Infest USK.webp'

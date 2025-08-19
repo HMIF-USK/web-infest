@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import { ArrowCornerDown } from "../icons/arrowCornerDown";
-import { scrollIntoSection } from "@/libs/helpers/scrollIntoSection";
+import { scrollIntoSection } from "@/utils/helpers/scrollIntoSection";
 
 export const BannerHero2 = () => {
   return (
